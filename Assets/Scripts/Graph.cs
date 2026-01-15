@@ -55,6 +55,7 @@ public class Graph
         mcell.sofar = 0;
         mcell.parent = null;
         ListaAbierta.Add(mcell);
+          
     }
     public List<sCell> GetOptimalPath()
     {
