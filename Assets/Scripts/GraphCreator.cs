@@ -1,83 +1,95 @@
-using System.Collections;
+ï»¿using UnityEngine;
 using System.Collections.Generic;
-using UnityEngine;
 
 public class GraphCreator : MonoBehaviour
 {
+    public static GraphCreator Instance;
+
     public GameObject prefabTile;
-    [SerializeField] private int TileCount = 10;
-    private Graph mGraph = new Graph();
-    private GameObject[,] tiles;
-    bool foundok = false;
+    public int size = 10;
+
+    public Graph graph = new();
+    public GameObject[,] tiles;
+
+    void Awake()
+    {
+        Instance = this;
+    }
 
     void Start()
     {
-        mGraph.populateGrid(TileCount);
-        var grid = mGraph.mGrid;
-        int count = mGraph.mCount;
+        graph.PopulateGrid(size);
+        tiles = new GameObject[size, size];
 
-        float startX = -count / 2f;
-        float startZ = -startX;
+        float offset = size / 2f;
 
-
-        tiles = new GameObject[count, count];
-
-        GameObject tilesParent = new GameObject("Tiles");
-
-        for (int rowi = 0; rowi < count; rowi++)
+        for (int r = 0; r < size; r++)
         {
-            for (int coli = 0; coli < count; coli++)
+            for (int c = 0; c < size; c++)
             {
-                float xx = startX + coli;
-                float zz = startZ - rowi;
-                GameObject tile = Instantiate(prefabTile,
-                    new Vector3(xx, 0f, zz), prefabTile.transform.rotation, tilesParent.transform);
+                Vector3 pos = new(c - offset, 0, offset - r);
+                tiles[r, c] = Instantiate(prefabTile, pos, Quaternion.identity);
+                tiles[r, c].GetComponent<Renderer>().material.color = Color.white;
+            }
+        }
+    }
 
-                tiles[rowi, coli] = tile;
+    public Vector2Int WorldToGrid(Vector3 pos)
+    {
+        int col = Mathf.RoundToInt(pos.x + size / 2f);
+        int row = Mathf.RoundToInt(size / 2f - pos.z);
+        return new Vector2Int(row, col);
+    }
 
-                switch (grid[rowi][coli])
+    public Vector3 GridToWorld(int r, int c)
+    {
+        return tiles[r, c].transform.position;
+    }
+
+    
+    public void UpdateTileColors()
+    {
+        for (int r = 0; r < size; r++)
+        {
+            for (int c = 0; c < size; c++)
+            {
+                var rend = tiles[r, c].GetComponent<Renderer>();
+
+                switch (graph.mGrid[r][c])
                 {
-                    case eCellType.blocked:
-                        tile.GetComponent<Renderer>().material.color = Color.blue;
-                        break;
                     case eCellType.start:
-                        tile.GetComponent<Renderer>().material.color = Color.green;
+                        rend.material.color = Color.green;
                         break;
                     case eCellType.goal:
-                        tile.GetComponent<Renderer>().material.color = Color.red;
+                        rend.material.color = Color.red;
+                        break;
+                    case eCellType.blocked:
+                        rend.material.color = Color.black;
                         break;
                     default:
+                        rend.material.color = Color.white;
                         break;
                 }
             }
         }
+
+        foreach (var c in graph.ListaAbierta)
+            tiles[c.row, c.col].GetComponent<Renderer>().material.color = Color.blue;
+
+        foreach (var c in graph.ListaCerrada)
+            tiles[c.row, c.col].GetComponent<Renderer>().material.color = Color.yellow;
     }
 
-    void Update()
+    public void PaintPath(List<sCell> path)
     {
-        if (!foundok)
+        foreach (var cell in path)
         {
-            foundok = mGraph.UpdateStep(tiles);
-            if (foundok)
-            {
-                MarkOptimalPath();
-            }
-        }
-    }
+            if (graph.mGrid[cell.row][cell.col] == eCellType.start) continue;
+            if (graph.mGrid[cell.row][cell.col] == eCellType.goal) continue;
 
-    private void MarkOptimalPath()
-    {
-        List<sCell> optimalPath = mGraph.GetOptimalPath();
-        if (optimalPath.Count > 0)
-        {
-            foreach (sCell cell in optimalPath)
-            {
-                tiles[cell.row, cell.col].GetComponent<Renderer>().material.color = Color.cyan;
-            }
-        }
-        else
-        {
-            Debug.LogError("No se encontró ningún camino óptimo.");
+            tiles[cell.row, cell.col]
+                .GetComponent<Renderer>()
+                .material.color = Color.cyan;
         }
     }
 }
