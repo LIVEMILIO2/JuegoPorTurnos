@@ -1,15 +1,20 @@
-﻿using UnityEngine;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 
 public class GraphCreator : MonoBehaviour
 {
     public static GraphCreator Instance;
 
     public GameObject prefabTile;
-    public int size = 10;
+    [SerializeField] private int TileCount = 10;
 
-    public Graph graph = new();
-    public GameObject[,] tiles;
+    public float startX;
+    public float startZ;
+
+    private Graph mGraph = new Graph();
+    private GameObject[,] tiles;
+    bool foundok = false;
 
     void Awake()
     {
@@ -18,78 +23,114 @@ public class GraphCreator : MonoBehaviour
 
     void Start()
     {
-        graph.PopulateGrid(size);
-        tiles = new GameObject[size, size];
+        mGraph.populateGrid(TileCount);
+        var grid = mGraph.mGrid;
+        int count = mGraph.mCount;
 
-        float offset = size / 2f;
+        startX = -count / 2f;
+        startZ = -startX;
 
-        for (int r = 0; r < size; r++)
+        tiles = new GameObject[count, count];
+        GameObject tilesParent = new GameObject("Tiles");
+
+        for (int row = 0; row < count; row++)
         {
-            for (int c = 0; c < size; c++)
+            for (int col = 0; col < count; col++)
             {
-                Vector3 pos = new(c - offset, 0, offset - r);
-                tiles[r, c] = Instantiate(prefabTile, pos, Quaternion.identity);
-                tiles[r, c].GetComponent<Renderer>().material.color = Color.white;
+                float x = startX + col;
+                float z = startZ - row;
+
+                GameObject tile = Instantiate(
+                    prefabTile,
+                    new Vector3(x, 0f, z),
+                    prefabTile.transform.rotation,
+                    tilesParent.transform
+                );
+
+                tiles[row, col] = tile;
+                PintarTile(row, col);
             }
         }
     }
 
-    public Vector2Int WorldToGrid(Vector3 pos)
+    public void CalcularCamino(Vector2Int start, Vector2Int goal, PlayerScript player)
     {
-        int col = Mathf.RoundToInt(pos.x + size / 2f);
-        int row = Mathf.RoundToInt(size / 2f - pos.z);
-        return new Vector2Int(row, col);
+        ResetVisual();
+        foundok = false;
+
+        mGraph.Reset();
+        mGraph.SetStart(start);
+        mGraph.SetGoal(goal);
+
+        while (!foundok)
+            foundok = mGraph.UpdateStep(tiles);
+
+        MarcarCamino();
+
+        List<sCell> path = mGraph.GetOptimalPath();
+        if (path.Count == 0) return;
+
+        sCell last = path.Last();
+        Vector3 destino = GridToWorld(last.row, last.col);
+        player.SetTarget(destino);
     }
 
-    public Vector3 GridToWorld(int r, int c)
+    void PintarTile(int row, int col)
     {
-        return tiles[r, c].transform.position;
-    }
+        var rend = tiles[row, col].GetComponent<Renderer>();
 
-    
-    public void UpdateTileColors()
-    {
-        for (int r = 0; r < size; r++)
+        switch (mGraph.mGrid[row][col])
         {
-            for (int c = 0; c < size; c++)
-            {
-                var rend = tiles[r, c].GetComponent<Renderer>();
+            case eCellType.start:
+                rend.material.color = Color.green;
+                break;
 
-                switch (graph.mGrid[r][c])
-                {
-                    case eCellType.start:
-                        rend.material.color = Color.green;
-                        break;
-                    case eCellType.goal:
-                        rend.material.color = Color.red;
-                        break;
-                    case eCellType.blocked:
-                        rend.material.color = Color.black;
-                        break;
-                    default:
-                        rend.material.color = Color.white;
-                        break;
-                }
-            }
+            case eCellType.goal:
+                rend.material.color = Color.red;
+                break;
+
+            case eCellType.blocked:
+                rend.material.color = Color.black;
+                break;
+
+            default:
+                rend.material.color = Color.white;
+                break;
         }
 
-        foreach (var c in graph.ListaAbierta)
+        foreach (var c in mGraph.ListaAbierta)
             tiles[c.row, c.col].GetComponent<Renderer>().material.color = Color.blue;
 
-        foreach (var c in graph.ListaCerrada)
+        foreach (var c in mGraph.ListaCerrada)
             tiles[c.row, c.col].GetComponent<Renderer>().material.color = Color.yellow;
     }
 
-    public void PaintPath(List<sCell> path)
-    {
-        foreach (var cell in path)
-        {
-            if (graph.mGrid[cell.row][cell.col] == eCellType.start) continue;
-            if (graph.mGrid[cell.row][cell.col] == eCellType.goal) continue;
 
-            tiles[cell.row, cell.col]
-                .GetComponent<Renderer>()
-                .material.color = Color.cyan;
-        }
+    void ResetVisual()
+    {
+        for (int r = 0; r < TileCount; r++)
+            for (int c = 0; c < TileCount; c++)
+                tiles[r, c].GetComponent<Renderer>().material.color = Color.white;
+    }
+
+    void MarcarCamino()
+    {
+        var path = mGraph.GetOptimalPath();
+        foreach (var c in path)
+            tiles[c.row, c.col].GetComponent<Renderer>().material.color = Color.cyan;
+    }
+
+    public Vector2Int WorldToGrid(Vector3 world)
+    {
+        int col = Mathf.RoundToInt(world.x - startX);
+        int row = Mathf.RoundToInt(startZ - world.z);
+        return new Vector2Int(row, col);
+    }
+
+    public Vector3 GridToWorld(int row, int col)
+    {
+        float x = startX + col;
+        float z = startZ - row;
+        return new Vector3(x, 0.5f, z);
     }
 }
