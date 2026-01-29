@@ -7,7 +7,7 @@ public class GraphCreator : MonoBehaviour
     public static GraphCreator Instance;
 
     public GameObject prefabTile;
-    [SerializeField] private int TileCount = 10;
+    [SerializeField] private int TileCount = 20;
 
     public float startX;
     public float startZ;
@@ -32,7 +32,7 @@ public class GraphCreator : MonoBehaviour
 
         tiles = new GameObject[count, count];
         GameObject tilesParent = new GameObject("Tiles");
-
+        
         for (int row = 0; row < count; row++)
         {
             for (int col = 0; col < count; col++)
