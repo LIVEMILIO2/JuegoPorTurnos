@@ -27,10 +27,6 @@ public class Graph
 
     Vector2Int start;
     Vector2Int goal;
-
-    // =========================
-    // GRID
-    // =========================
     public void populateGrid(int size)
     {
         mCount = size;
@@ -43,10 +39,6 @@ public class Graph
                 mGrid[i].Add(eCellType.empty);
         }
     }
-
-    // =========================
-    // A* CONTROL
-    // =========================
     public void Reset()
     {
         ListaAbierta.Clear();
@@ -79,9 +71,6 @@ public class Graph
         mGrid[g.x][g.y] = eCellType.goal;
     }
 
-    // =========================
-    // A* STEP
-    // =========================
     public bool UpdateStep(GameObject[,] tiles)
     {
         if (ListaAbierta.Count == 0)
@@ -122,10 +111,6 @@ public class Graph
 
         return false;
     }
-
-    // =========================
-    // NEIGHBORS
-    // =========================
     void TryAddCell(int row, int col, sCell parent)
     {
         if (row < 0 || col < 0 || row >= mCount || col >= mCount)
@@ -148,10 +133,6 @@ public class Graph
 
         ListaAbierta.Add(cell);
     }
-
-    // =========================
-    // PATH
-    // =========================
     public List<sCell> GetOptimalPath()
     {
         List<sCell> path = new List<sCell>();
@@ -169,10 +150,6 @@ public class Graph
         path.Reverse();
         return path;
     }
-
-    // =========================
-    // HEURISTIC
-    // =========================
     int ReturnHeuristica(int row, int col)
     {
         int dx = Mathf.Abs(goal.x - row);

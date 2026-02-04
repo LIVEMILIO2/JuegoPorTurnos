@@ -414,6 +414,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   player1: {fileID: 1383345800}
   player2: {fileID: 1295848022}
+  enemy: {fileID: 1520011382}
   turnoActual: 0
 --- !u!4 &587434805
 Transform:
@@ -980,7 +981,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   speed: 5
   altura: 0.5
-  vida: 100
+  enemyMoveRange: 3
 --- !u!135 &1520011383
 SphereCollider:
   m_ObjectHideFlags: 0

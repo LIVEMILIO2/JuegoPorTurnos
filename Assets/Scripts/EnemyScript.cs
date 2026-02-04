@@ -1,53 +1,52 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class EnemyScript : MonoBehaviour
 {
     public float speed = 5f;
     public float altura = 0.5f;
-    public float vida = 100;
+    public int enemyMoveRange = 3;
 
-    private Vector3 target;
+    List<Vector3> path = new List<Vector3>();
+    int index = 0;
+    bool moving = false;
 
-    private bool moving = false;
-    void Start()
+    void Update()
     {
         if (moving)
             Mover();
-        
-        
     }
-    void Update()
+
+    public void SetPath(List<Vector3> nuevoPath)
     {
-        
+        path = nuevoPath;
+        index = 0;
+        moving = path.Count > 0;
     }
-    public void Mover()
+
+    void Mover()
     {
+        Vector3 target = path[index];
         transform.position = Vector3.MoveTowards(
             transform.position,
             target,
             speed * Time.deltaTime
         );
+
         if (Vector3.Distance(transform.position, target) < 0.05f)
         {
-            transform.position = target;
-            moving = false;
+            index++;
+
+            if (index >= path.Count)
+            {
+                moving = false;
+                GameManager.Instance.SiguienteTurno();
+            }
         }
     }
-    public void SetTarget(Vector3 destino)
-    {
-        destino.y = altura;
-        target = destino;
-        moving = true;
-    }
+
     public bool Moving()
     {
         return moving;
-    }
-    public void Die()
-    {
-        if(vida  < 0)
-        {
-            Destroy(gameObject);
-        }
     }
 }

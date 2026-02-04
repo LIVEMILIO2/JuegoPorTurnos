@@ -2,11 +2,11 @@ using UnityEngine;
 
 public class PlayerScript : MonoBehaviour
 {
-    public float speed = 5f;     
-    public float altura = 0.5f;  
+    public float speed = 5f;
+    public float altura = 0.5f;
 
-    private Vector3 target;
-    private bool moviendose = false;
+    Vector3 target;
+    bool moviendose = false;
 
     void Update()
     {
@@ -14,12 +14,6 @@ public class PlayerScript : MonoBehaviour
             Mover();
     }
 
-    public void SetTarget(Vector3 destino)
-    {
-        destino.y = altura; 
-        target = destino;
-        moviendose = true;
-    }
     void Mover()
     {
         transform.position = Vector3.MoveTowards(
@@ -35,6 +29,14 @@ public class PlayerScript : MonoBehaviour
             GameManager.Instance.SiguienteTurno();
         }
     }
+
+    public void SetTarget(Vector3 destino)
+    {
+        destino.y = altura;
+        target = destino;
+        moviendose = true;
+    }
+
     public bool EstaMoviendose()
     {
         return moviendose;

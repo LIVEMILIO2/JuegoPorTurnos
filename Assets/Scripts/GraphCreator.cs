@@ -24,7 +24,6 @@ public class GraphCreator : MonoBehaviour
     void Start()
     {
         mGraph.populateGrid(TileCount);
-        var grid = mGraph.mGrid;
         int count = mGraph.mCount;
 
         startX = -count / 2f;
@@ -32,7 +31,7 @@ public class GraphCreator : MonoBehaviour
 
         tiles = new GameObject[count, count];
         GameObject tilesParent = new GameObject("Tiles");
-        
+
         for (int row = 0; row < count; row++)
         {
             for (int col = 0; col < count; col++)
@@ -52,7 +51,6 @@ public class GraphCreator : MonoBehaviour
             }
         }
     }
-
     public void CalcularCamino(Vector2Int start, Vector2Int goal, PlayerScript player)
     {
         ResetVisual();
@@ -74,6 +72,34 @@ public class GraphCreator : MonoBehaviour
         Vector3 destino = GridToWorld(last.row, last.col);
         player.SetTarget(destino);
     }
+    public void CalcularCaminoEnemy(Vector2Int start, Vector2Int goal, EnemyScript enemy)
+    {
+        ResetVisual();
+        mGraph.Reset();
+
+        mGraph.SetStart(start);
+        mGraph.SetGoal(goal);
+
+        bool found = false;
+        while (!found)
+            found = mGraph.UpdateStep(tiles);
+
+        var pathGrid = mGraph.GetOptimalPath();
+        if (pathGrid.Count < 2) return;
+
+        List<Vector3> pathWorld = new List<Vector3>();
+
+        int pasos = Mathf.Min(enemy.enemyMoveRange, pathGrid.Count - 1);
+
+        for (int i = 1; i <= pasos; i++)
+        {
+            var c = pathGrid[i];
+            pathWorld.Add(GridToWorld(c.row, c.col));
+        }
+
+        enemy.SetPath(pathWorld);
+    }
+
 
     void PintarTile(int row, int col)
     {
@@ -97,14 +123,7 @@ public class GraphCreator : MonoBehaviour
                 rend.material.color = Color.white;
                 break;
         }
-
-        foreach (var c in mGraph.ListaAbierta)
-            tiles[c.row, c.col].GetComponent<Renderer>().material.color = Color.blue;
-
-        foreach (var c in mGraph.ListaCerrada)
-            tiles[c.row, c.col].GetComponent<Renderer>().material.color = Color.yellow;
     }
-
 
     void ResetVisual()
     {
