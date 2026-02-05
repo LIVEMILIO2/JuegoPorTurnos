@@ -5,6 +5,7 @@ public class EnemyScript : MonoBehaviour
 {
     public float speed = 5f;
     public float altura = 0.5f;
+    public float Vida = 100;
     public int enemyMoveRange = 3;
 
     List<Vector3> path = new List<Vector3>();
@@ -15,6 +16,13 @@ public class EnemyScript : MonoBehaviour
     {
         if (moving)
             Mover();
+        if (CompareTag("Player"))
+        {
+            Vida -= 50;
+            
+        }
+        if (Vida < 0)
+            die();
     }
 
     public void SetPath(List<Vector3> nuevoPath)
@@ -44,7 +52,11 @@ public class EnemyScript : MonoBehaviour
             }
         }
     }
-
+    void die()
+    {   
+            Destroy(gameObject);
+        
+    }
     public bool Moving()
     {
         return moving;

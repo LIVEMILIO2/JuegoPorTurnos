@@ -1,8 +1,7 @@
 using UnityEngine;
 
-public class Stats : MonoBehaviour
+public class Mage : MonoBehaviour
 {
-    public int vida =  100;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {

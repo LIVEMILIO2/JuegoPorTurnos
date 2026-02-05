@@ -1,17 +1,21 @@
+using System.Diagnostics;
 using UnityEngine;
 
 public class PlayerScript : MonoBehaviour
 {
     public float speed = 5f;
     public float altura = 0.5f;
-
+    public float damage = 50;
     Vector3 target;
     bool moviendose = false;
 
+    EnemyScript enemy;
     void Update()
     {
         if (moviendose)
             Mover();
+
+       
     }
 
     void Mover()
@@ -28,6 +32,15 @@ public class PlayerScript : MonoBehaviour
             moviendose = false;
             GameManager.Instance.SiguienteTurno();
         }
+        if (Input.GetKeyUp(KeyCode.F))
+        {
+           
+            if (CompareTag("Enemy"))
+            {
+                enemy.Vida -= damage;
+            }
+        }
+
     }
 
     public void SetTarget(Vector3 destino)
