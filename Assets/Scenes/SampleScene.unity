@@ -175,12 +175,13 @@ PrefabInstance:
       propertyPath: m_IsTrigger
       value: 1
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 7834696097814314564, guid: f4843ff660542ef49b42129b0c059604, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 2915035672867722987, guid: f4843ff660542ef49b42129b0c059604, type: 3}
-      insertIndex: 7
+      insertIndex: -1
       addedObject: {fileID: 1066416920}
   m_SourcePrefab: {fileID: 100100000, guid: f4843ff660542ef49b42129b0c059604, type: 3}
 --- !u!1 &330585543
@@ -740,7 +741,7 @@ Transform:
   m_GameObject: {fileID: 1520011377}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 3.31, y: 1.79, z: 3.29977}
+  m_LocalPosition: {x: 3.31, y: 0.71, z: 3.29977}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

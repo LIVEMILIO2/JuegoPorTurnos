@@ -54,17 +54,24 @@ public class GameManager : MonoBehaviour
     public void SiguienteTurno()
     {
         if (turnoActual == Turno.Player1)
+        {
             turnoActual = Turno.Player2;
+            player2.ReiniciarTurno();
+        }
         else if (turnoActual == Turno.Player2)
         {
             turnoActual = Turno.Enemy;
             TurnoEnemy();
         }
         else
+        {
             turnoActual = Turno.Player1;
+            player1.ReiniciarTurno();
+        }
 
         Debug.Log("Turno de " + turnoActual);
     }
+
 
     void TurnoEnemy()
     {

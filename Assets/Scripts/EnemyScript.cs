@@ -16,13 +16,6 @@ public class EnemyScript : MonoBehaviour
     {
         if (moving)
             Mover();
-        if (CompareTag("Player"))
-        {
-            Vida -= 50;
-            
-        }
-        if (Vida < 0)
-            die();
     }
 
     public void SetPath(List<Vector3> nuevoPath)
@@ -35,6 +28,7 @@ public class EnemyScript : MonoBehaviour
     void Mover()
     {
         Vector3 target = path[index];
+
         transform.position = Vector3.MoveTowards(
             transform.position,
             target,
@@ -52,11 +46,21 @@ public class EnemyScript : MonoBehaviour
             }
         }
     }
-    void die()
-    {   
-            Destroy(gameObject);
-        
+
+    public void RecibirDamage(float cantidad)
+    {
+        Vida -= cantidad;
+        Debug.Log("Vida enemy: " + Vida);
+
+        if (Vida <= 0)
+            Die();
     }
+
+    void Die()
+    {
+        Destroy(gameObject);
+    }
+
     public bool Moving()
     {
         return moving;
