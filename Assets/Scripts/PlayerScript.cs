@@ -48,7 +48,7 @@ public class PlayerScript : MonoBehaviour
 
     public void SetTarget(Vector3 destino)
     {
-        if (yaSeMovio) return; // ya se movió este turno
+        if (yaSeMovio) return; 
 
         destino.y = altura;
         target = destino;
@@ -69,6 +69,7 @@ public class PlayerScript : MonoBehaviour
             enemy.RecibirDamage(damage);
             yaAtaco = true;
             Debug.Log("Enemy golpeado!");
+            Debug.Log(enemy.Vida);
             VerificarFinTurno();
         }
         else

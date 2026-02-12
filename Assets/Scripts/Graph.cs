@@ -43,8 +43,6 @@ public class Graph
     {
         ListaAbierta.Clear();
         ListaCerrada.Clear();
-
-        // limpia start / goal viejos
         for (int r = 0; r < mCount; r++)
             for (int c = 0; c < mCount; c++)
                 if (mGrid[r][c] == eCellType.start || mGrid[r][c] == eCellType.goal)

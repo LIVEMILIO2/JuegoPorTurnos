@@ -100,7 +100,10 @@ public class GraphCreator : MonoBehaviour
         enemy.SetPath(pathWorld);
     }
 
-
+    public void StopEnemy()
+    {
+        mGraph.Reset();
+    }
     void PintarTile(int row, int col)
     {
         var rend = tiles[row, col].GetComponent<Renderer>();

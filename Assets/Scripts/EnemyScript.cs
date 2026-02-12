@@ -7,6 +7,7 @@ public class EnemyScript : MonoBehaviour
     public float altura = 0.5f;
     public float Vida = 100;
     public int enemyMoveRange = 3;
+    public float enemyAtackRange = 1.5f;
 
     List<Vector3> path = new List<Vector3>();
     int index = 0;
@@ -44,6 +45,21 @@ public class EnemyScript : MonoBehaviour
                 moving = false;
                 GameManager.Instance.SiguienteTurno();
             }
+        }
+    }
+    public void CheckDistance()
+    {
+        PlayerScript player1 = GameManager.Instance.player1;
+        PlayerScript player2 = GameManager.Instance.player2;
+        float dist1 = Vector3.Distance(transform.position, player1.transform.position);
+        float dist2 = Vector3.Distance(transform.position, player2.transform.position);
+        if (enemyAtackRange >= dist1)
+        {
+            GraphCreator.Instance.StopEnemy();
+        }
+        if (enemyAtackRange >= dist2)
+        {
+            GraphCreator.Instance.StopEnemy();
         }
     }
 
