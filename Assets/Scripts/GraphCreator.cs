@@ -7,13 +7,17 @@ public class GraphCreator : MonoBehaviour
     public static GraphCreator Instance;
 
     public GameObject prefabTile;
-    [SerializeField] private int TileCount = 20;
+
+    [SerializeField]
+    private int TileCount = 20;
 
     public float startX;
     public float startZ;
 
     private Graph mGraph = new Graph();
+
     private GameObject[,] tiles;
+
     bool foundok = false;
 
     void Awake()
@@ -24,13 +28,15 @@ public class GraphCreator : MonoBehaviour
     void Start()
     {
         mGraph.populateGrid(TileCount);
+
         int count = mGraph.mCount;
 
         startX = -count / 2f;
         startZ = -startX;
 
         tiles = new GameObject[count, count];
-        GameObject tilesParent = new GameObject("Tiles");
+
+        GameObject parent = new GameObject("Tiles");
 
         for (int row = 0; row < count; row++)
         {
@@ -39,120 +45,207 @@ public class GraphCreator : MonoBehaviour
                 float x = startX + col;
                 float z = startZ - row;
 
-                GameObject tile = Instantiate(
-                    prefabTile,
-                    new Vector3(x, 0f, z),
-                    prefabTile.transform.rotation,
-                    tilesParent.transform
-                );
+                GameObject tile =
+                    Instantiate(
+                        prefabTile,
+                        new Vector3(x, 0, z),
+                        Quaternion.identity,
+                        parent.transform
+                    );
 
                 tiles[row, col] = tile;
-                PintarTile(row, col);
+
+                tile.GetComponent<Renderer>().material.color = Color.white;
             }
         }
     }
-    public void CalcularCamino(Vector2Int start, Vector2Int goal, PlayerScript player)
-    {
-        ResetVisual();
-        foundok = false;
 
+
+    public void CalcularCamino(
+        Vector2Int start,
+        Vector2Int goal,
+        PlayerScript player
+    )
+    {
         mGraph.Reset();
+
+        ResetVisual();
+
         mGraph.SetStart(start);
+
         mGraph.SetGoal(goal);
 
+        PintarTile(start.x, start.y);
+
+        PintarTile(goal.x, goal.y);
+
+        foundok = false;
+
         while (!foundok)
+        {
             foundok = mGraph.UpdateStep(tiles);
+        }
 
         MarcarCamino();
 
         List<sCell> path = mGraph.GetOptimalPath();
-        if (path.Count == 0) return;
+
+        if (path.Count == 0)
+            return;
 
         sCell last = path.Last();
-        Vector3 destino = GridToWorld(last.row, last.col);
+
+        Vector3 destino =
+            GridToWorld(last.row, last.col);
+
         player.SetTarget(destino);
     }
-    public void CalcularCaminoEnemy(Vector2Int start, Vector2Int goal, EnemyScript enemy)
+    public void CalcularCaminoEnemy(
+        Vector2Int start,
+        Vector2Int goal,
+        EnemyScript enemy
+    )
     {
-        ResetVisual();
         mGraph.Reset();
 
+        ResetVisual();
+
         mGraph.SetStart(start);
+
         mGraph.SetGoal(goal);
 
+        PintarTile(start.x, start.y);
+
+        PintarTile(goal.x, goal.y);
+
         bool found = false;
+
         while (!found)
+        {
             found = mGraph.UpdateStep(tiles);
+        }
 
         var pathGrid = mGraph.GetOptimalPath();
-        if (pathGrid.Count < 2) return;
 
-        List<Vector3> pathWorld = new List<Vector3>();
+        if (pathGrid.Count < 2)
+        {
+            enemy.SetPath(new List<Vector3>());
+            return;
+        }
 
-        int pasos = Mathf.Min(enemy.enemyMoveRange, pathGrid.Count - 1);
+        List<Vector3> pathWorld =
+            new List<Vector3>();
+
+        int maxIndex =
+            pathGrid.Count - 2;
+
+        int pasos =
+            Mathf.Min(
+                enemy.enemyMoveRange,
+                maxIndex
+            );
 
         for (int i = 1; i <= pasos; i++)
         {
             var c = pathGrid[i];
-            pathWorld.Add(GridToWorld(c.row, c.col));
+
+            pathWorld.Add(
+                GridToWorld(
+                    c.row,
+                    c.col
+                )
+            );
         }
 
         enemy.SetPath(pathWorld);
     }
 
-    public void StopEnemy()
-    {
-        mGraph.Reset();
-    }
-    void PintarTile(int row, int col)
-    {
-        var rend = tiles[row, col].GetComponent<Renderer>();
 
-        switch (mGraph.mGrid[row][col])
-        {
-            case eCellType.start:
-                rend.material.color = Color.green;
-                break;
-
-            case eCellType.goal:
-                rend.material.color = Color.red;
-                break;
-
-            case eCellType.blocked:
-                rend.material.color = Color.black;
-                break;
-
-            default:
-                rend.material.color = Color.white;
-                break;
-        }
-    }
 
     void ResetVisual()
     {
         for (int r = 0; r < TileCount; r++)
+        {
             for (int c = 0; c < TileCount; c++)
-                tiles[r, c].GetComponent<Renderer>().material.color = Color.white;
+            {
+                tiles[r, c]
+                .GetComponent<Renderer>()
+                .material.color = Color.white;
+            }
+        }
     }
 
     void MarcarCamino()
     {
-        var path = mGraph.GetOptimalPath();
+        var path =
+            mGraph.GetOptimalPath();
+
         foreach (var c in path)
-            tiles[c.row, c.col].GetComponent<Renderer>().material.color = Color.cyan;
+        {
+            tiles[c.row, c.col]
+            .GetComponent<Renderer>()
+            .material.color = Color.cyan;
+        }
     }
 
-    public Vector2Int WorldToGrid(Vector3 world)
+    void PintarTile(int row, int col)
     {
-        int col = Mathf.RoundToInt(world.x - startX);
-        int row = Mathf.RoundToInt(startZ - world.z);
+        var rend =
+            tiles[row, col]
+            .GetComponent<Renderer>();
+
+        switch (mGraph.mGrid[row][col])
+        {
+            case eCellType.start:
+
+                rend.material.color =
+                    Color.green;
+
+                break;
+
+            case eCellType.goal:
+
+                rend.material.color =
+                    Color.red;
+
+                break;
+        }
+    }
+
+    // ===============================
+    // CONVERSION
+    // ===============================
+
+    public Vector2Int WorldToGrid(
+        Vector3 world
+    )
+    {
+        int col =
+            Mathf.RoundToInt(
+                world.x - startX
+            );
+
+        int row =
+            Mathf.RoundToInt(
+                startZ - world.z
+            );
+
         return new Vector2Int(row, col);
     }
 
-    public Vector3 GridToWorld(int row, int col)
+    public Vector3 GridToWorld(
+        int row,
+        int col
+    )
     {
         float x = startX + col;
+
         float z = startZ - row;
-        return new Vector3(x, 0.5f, z);
+
+        return new Vector3(
+            x,
+            0.5f,
+            z
+        );
     }
 }
