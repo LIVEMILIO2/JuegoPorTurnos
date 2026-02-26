@@ -87,7 +87,7 @@ public class GameManager : MonoBehaviour
         Debug.Log("BOTON PASAR TURNO PRESIONADO");
 
         SiguienteTurno();
-        graphCreator.ResetVisual();
+        //graphCreator.ResetVisual();
     }
 
     void TurnoEnemy()
