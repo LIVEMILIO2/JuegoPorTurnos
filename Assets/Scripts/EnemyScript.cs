@@ -1,17 +1,18 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class EnemyScript : MonoBehaviour
 {
     public float speed = 5f;
     public float altura = 0.5f;
 
-    public float Vida = 100;
-
+    public float Heatlh = 100;
+    public float currentHealth;
     public int enemyMoveRange = 3;
-
+    HealthBarEnemy healthBar;
     public float enemyAtackRange = 1.5f;
-
+    
     public float damage = 25f;
 
     List<Vector3> path = new List<Vector3>();
@@ -22,7 +23,15 @@ public class EnemyScript : MonoBehaviour
 
     PlayerScript objetivoActual;
 
-
+    private void Awake()
+    {
+        healthBar = GetComponentInChildren<HealthBarEnemy>();
+    }
+    private void Start()
+    {
+        currentHealth = Heatlh;
+        healthBar.UpdateHealthBar(currentHealth, Heatlh);
+    }
     void Update()
     {
         if (moving)
@@ -133,11 +142,11 @@ public class EnemyScript : MonoBehaviour
 
     public void RecibirDamage(float cantidad)
     {
-        Vida -= cantidad;
+        Heatlh -= cantidad = currentHealth;
+        healthBar.UpdateHealthBar(currentHealth, Heatlh);
+        Debug.Log("Enemy vida: " + currentHealth);
 
-        Debug.Log("Enemy vida: " + Vida);
-
-        if (Vida <= 0)
+        if (currentHealth <= 0)
             Die();
     }
 

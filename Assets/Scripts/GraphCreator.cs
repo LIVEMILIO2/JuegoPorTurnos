@@ -162,7 +162,7 @@ public class GraphCreator : MonoBehaviour
 
 
 
-    void ResetVisual()
+    public void ResetVisual()
     {
         for (int r = 0; r < TileCount; r++)
         {

@@ -6,7 +6,7 @@ public class PlayerScript : MonoBehaviour
     public float altura = 0.5f;
 
     public float damage = 50f;
-
+    public float health = 100f;
     public float rangoAtaque = 1.5f;
 
     Vector3 target;

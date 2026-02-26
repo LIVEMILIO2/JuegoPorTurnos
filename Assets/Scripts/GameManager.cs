@@ -14,7 +14,7 @@ public class GameManager : MonoBehaviour
     public PlayerScript player1;
     public PlayerScript player2;
     public EnemyScript enemy;
-
+    GraphCreator graphCreator;
     public Turno turnoActual = Turno.Player1;
 
     void Awake()
@@ -81,12 +81,13 @@ public class GameManager : MonoBehaviour
         Debug.Log("Turno de " + turnoActual);
     }
 
-    //  ESTA ES LA FUNCION DEL BOTON
+  
     public void BotonPasarTurno()
     {
         Debug.Log("BOTON PASAR TURNO PRESIONADO");
 
         SiguienteTurno();
+        graphCreator.ResetVisual();
     }
 
     void TurnoEnemy()
