@@ -17,25 +17,20 @@ public class PlayerScript : MonoBehaviour
 
     bool yaAtaco = false;
 
-
     void Update()
     {
         if (moviendose)
             Mover();
-
 
         if (EsMiTurno())
         {
             if (!yaAtaco && Input.GetKeyDown(KeyCode.F))
                 IntentarAtacar();
 
-
-            // terminar turno manualmente opcional
             if (Input.GetKeyDown(KeyCode.Space))
                 GameManager.Instance.SiguienteTurno();
         }
     }
-
 
     void Mover()
     {
@@ -45,7 +40,6 @@ public class PlayerScript : MonoBehaviour
                 target,
                 speed * Time.deltaTime
             );
-
 
         if (Vector3.Distance(transform.position, target) < 0.05f)
         {
@@ -59,7 +53,6 @@ public class PlayerScript : MonoBehaviour
         }
     }
 
-
     public void SetTarget(Vector3 destino)
     {
         if (yaSeMovio) return;
@@ -71,17 +64,18 @@ public class PlayerScript : MonoBehaviour
         moviendose = true;
     }
 
-
     void IntentarAtacar()
     {
-        EnemyScript enemy = GameManager.Instance.enemy;
+        if (GameManager.Instance.enemies.Count == 0)
+            return;
+
+        EnemyScript enemy = GameManager.Instance.enemies[0];
 
         float distancia =
             Vector3.Distance(
                 transform.position,
                 enemy.transform.position
             );
-
 
         if (distancia <= rangoAtaque)
         {
@@ -99,10 +93,8 @@ public class PlayerScript : MonoBehaviour
         }
     }
 
-
     void VerificarFinTurno()
     {
-        // CAMBIO IMPORTANTE
         if (yaSeMovio && yaAtaco)
         {
             Debug.Log("Jugador termino turno");
@@ -111,7 +103,6 @@ public class PlayerScript : MonoBehaviour
         }
     }
 
-
     public void ReiniciarTurno()
     {
         yaSeMovio = false;
@@ -119,32 +110,15 @@ public class PlayerScript : MonoBehaviour
         yaAtaco = false;
     }
 
-
     bool EsMiTurno()
     {
-        if (
-            GameManager.Instance.turnoActual == Turno.Player1 &&
-            GameManager.Instance.player1 == this
-        )
-            return true;
-
-
-        if (
-            GameManager.Instance.turnoActual == Turno.Player2 &&
-            GameManager.Instance.player2 == this
-        )
-            return true;
-
-
-        return false;
+        return GameManager.Instance.JugadorActual() == this;
     }
-
 
     public bool EstaMoviendose()
     {
         return moviendose;
     }
-
 
     public void RecibirDamage(float cantidad)
     {

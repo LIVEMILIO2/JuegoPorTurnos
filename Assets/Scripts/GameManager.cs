@@ -1,127 +1,120 @@
-﻿using UnityEngine;
-
-public enum Turno
-{
-    Player1,
-    Player2,
-    Enemy
-}
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
 
-    public PlayerScript player1;
-    public PlayerScript player2;
-    public EnemyScript enemy;
-    GraphCreator graphCreator;
-    public Turno turnoActual = Turno.Player1;
+    public List<PlayerScript> players = new List<PlayerScript>();
+    public List<EnemyScript> enemies = new List<EnemyScript>();
+
+    int turnoIndex = 0;
 
     void Awake()
     {
         Instance = this;
     }
 
+    void Start()
+    {
+        if (players.Count > 0)
+            players[0].ReiniciarTurno();
+    }
+
     void Update()
     {
-        if (turnoActual == Turno.Enemy)
+        if (EsTurnoPlayer())
+            DetectarClickMovimiento();
+    }
+
+    void DetectarClickMovimiento()
+    {
+        if (!Input.GetMouseButtonDown(0))
             return;
 
-        PlayerScript activo = GetPlayerActivo();
+        PlayerScript player = JugadorActual();
 
-        if (activo.EstaMoviendose())
+        if (player == null)
             return;
 
-        if (Input.GetMouseButtonDown(0))
+        if (player.EstaMoviendose())
+            return;
+
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+        RaycastHit hit;
+
+        if (Physics.Raycast(ray, out hit))
         {
-            Vector3 clickWorld = GetMouseWorldPosition();
+            Vector3 destino = hit.point;
 
             Vector2Int start =
-                GraphCreator.Instance.WorldToGrid(activo.transform.position);
+                GraphCreator.Instance.WorldToGrid(
+                    player.transform.position
+                );
 
             Vector2Int goal =
-                GraphCreator.Instance.WorldToGrid(clickWorld);
+                GraphCreator.Instance.WorldToGrid(
+                    destino
+                );
 
-            GraphCreator.Instance.CalcularCamino(start, goal, activo);
+            GraphCreator.Instance.CalcularCamino(
+                start,
+                goal,
+                player
+            );
         }
     }
 
-    PlayerScript GetPlayerActivo()
+    public PlayerScript JugadorActual()
     {
-        if (turnoActual == Turno.Player1)
-            return player1;
-
-        if (turnoActual == Turno.Player2)
-            return player2;
+        if (turnoIndex < players.Count)
+            return players[turnoIndex];
 
         return null;
     }
 
+    public EnemyScript EnemyActual()
+    {
+        int index = turnoIndex - players.Count;
+
+        if (index >= 0 && index < enemies.Count)
+            return enemies[index];
+
+        return null;
+    }
+
+    public bool EsTurnoPlayer()
+    {
+        return turnoIndex < players.Count;
+    }
+
+    public bool EsTurnoEnemy()
+    {
+        return turnoIndex >= players.Count;
+    }
+
     public void SiguienteTurno()
     {
-        if (turnoActual == Turno.Player1)
-        {
-            turnoActual = Turno.Player2;
+        turnoIndex++;
 
-            player2.ReiniciarTurno();
-        }
-        else if (turnoActual == Turno.Player2)
-        {
-            turnoActual = Turno.Enemy;
+        if (turnoIndex >= players.Count + enemies.Count)
+            turnoIndex = 0;
 
-            TurnoEnemy();
+        if (EsTurnoPlayer())
+        {
+            JugadorActual().ReiniciarTurno();
         }
         else
         {
-            turnoActual = Turno.Player1;
-
-            player1.ReiniciarTurno();
+            EnemyActual().TomarTurno();
         }
-
-        Debug.Log("Turno de " + turnoActual);
     }
-
-  
     public void BotonPasarTurno()
     {
         Debug.Log("BOTON PASAR TURNO PRESIONADO");
 
         SiguienteTurno();
         //graphCreator.ResetVisual();
-    }
-
-    void TurnoEnemy()
-    {
-        PlayerScript objetivo = GetPlayerMasCercano();
-
-        Vector2Int start =
-            GraphCreator.Instance.WorldToGrid(enemy.transform.position);
-
-        Vector2Int goal =
-            GraphCreator.Instance.WorldToGrid(objetivo.transform.position);
-
-        GraphCreator.Instance.CalcularCaminoEnemy(start, goal, enemy);
-    }
-
-    PlayerScript GetPlayerMasCercano()
-    {
-        float d1 =
-            Vector3.Distance(enemy.transform.position, player1.transform.position);
-
-        float d2 =
-            Vector3.Distance(enemy.transform.position, player2.transform.position);
-
-        return d1 <= d2 ? player1 : player2;
-    }
-
-    Vector3 GetMouseWorldPosition()
-    {
-        Ray ray =
-            Camera.main.ScreenPointToRay(Input.mousePosition);
-
-        if (Physics.Raycast(ray, out RaycastHit hit))
-            return hit.point;
-
-        return Vector3.zero;
     }
 }

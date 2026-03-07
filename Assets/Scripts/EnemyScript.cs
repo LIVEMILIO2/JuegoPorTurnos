@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class EnemyScript : MonoBehaviour
 {
@@ -9,10 +8,11 @@ public class EnemyScript : MonoBehaviour
 
     public float Heatlh = 100;
     public float currentHealth;
+
     public int enemyMoveRange = 3;
-    HealthBarEnemy healthBar;
+
     public float enemyAtackRange = 1.5f;
-    
+
     public float damage = 25f;
 
     List<Vector3> path = new List<Vector3>();
@@ -23,36 +23,46 @@ public class EnemyScript : MonoBehaviour
 
     PlayerScript objetivoActual;
 
-    private void Awake()
-    {
-        healthBar = GetComponentInChildren<HealthBarEnemy>();
-    }
-    private void Start()
+    void Start()
     {
         currentHealth = Heatlh;
-        healthBar.UpdateHealthBar(currentHealth, Heatlh);
     }
+
     void Update()
     {
         if (moving)
             Mover();
     }
 
+    public void TomarTurno()
+    {
+        objetivoActual = ObtenerObjetivo();
+
+        Vector2Int start =
+            GraphCreator.Instance.WorldToGrid(
+                transform.position
+            );
+
+        Vector2Int goal =
+            GraphCreator.Instance.WorldToGrid(
+                objetivoActual.transform.position
+            );
+
+        GraphCreator.Instance.CalcularCaminoEnemy(
+            start,
+            goal,
+            this
+        );
+    }
 
     public void SetPath(List<Vector3> nuevoPath)
     {
-        Debug.Log("Enemy recibio path");
-
         path = nuevoPath;
 
         index = 0;
 
-        objetivoActual = ObtenerObjetivo();
-
         if (path.Count == 0)
         {
-            Debug.Log("Enemy ya esta en rango, ataca directamente");
-
             IntentarAtacar();
 
             GameManager.Instance.SiguienteTurno();
@@ -62,7 +72,6 @@ public class EnemyScript : MonoBehaviour
 
         moving = true;
     }
-
 
     void Mover()
     {
@@ -91,11 +100,10 @@ public class EnemyScript : MonoBehaviour
         }
     }
 
-
     void IntentarAtacar()
     {
         if (objetivoActual == null)
-            objetivoActual = ObtenerObjetivo();
+            return;
 
         float distancia =
             Vector3.Distance(
@@ -103,61 +111,50 @@ public class EnemyScript : MonoBehaviour
                 objetivoActual.transform.position
             );
 
-        Debug.Log("Enemy intenta atacar");
-        Debug.Log("Distancia: " + distancia);
-
         if (distancia <= enemyAtackRange)
         {
-            Debug.Log("ENEMY ATACA");
-
             objetivoActual.RecibirDamage(damage);
         }
-        else
-        {
-            Debug.Log("Enemy fuera de rango");
-        }
     }
-
 
     PlayerScript ObtenerObjetivo()
     {
-        float d1 =
-            Vector3.Distance(
-                transform.position,
-                GameManager.Instance.player1.transform.position
-            );
+        PlayerScript objetivo = null;
 
-        float d2 =
-            Vector3.Distance(
-                transform.position,
-                GameManager.Instance.player2.transform.position
-            );
+        float mejorDistancia = Mathf.Infinity;
 
-        if (d1 <= d2)
-            return GameManager.Instance.player1;
-        else
-            return GameManager.Instance.player2;
+        foreach (var player in GameManager.Instance.players)
+        {
+            float d =
+                Vector3.Distance(
+                    transform.position,
+                    player.transform.position
+                );
+
+            if (d < mejorDistancia)
+            {
+                mejorDistancia = d;
+                objetivo = player;
+            }
+        }
+
+        return objetivo;
     }
-
 
     public void RecibirDamage(float cantidad)
     {
-        Heatlh -= cantidad = currentHealth;
-        healthBar.UpdateHealthBar(currentHealth, Heatlh);
+        currentHealth -= cantidad;
+
         Debug.Log("Enemy vida: " + currentHealth);
 
         if (currentHealth <= 0)
             Die();
     }
 
-
     void Die()
     {
-        Debug.Log("Enemy murio");
-
         Destroy(gameObject);
     }
-
 
     public bool Moving()
     {
