@@ -153,6 +153,10 @@ public class EnemyScript : MonoBehaviour
 
     void Die()
     {
+        // Notificar al GameManager antes de destruir
+        if (GameManager.Instance != null)
+            GameManager.Instance.RemoveEnemy(this);
+
         Destroy(gameObject);
     }
 

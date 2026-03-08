@@ -86,19 +86,39 @@ public class GraphCreator : MonoBehaviour
             foundok = mGraph.UpdateStep(tiles);
         }
 
-        MarcarCamino();
+        List<sCell> pathGrid = mGraph.GetOptimalPath();
 
-        List<sCell> path = mGraph.GetOptimalPath();
-
-        if (path.Count == 0)
+        if (pathGrid.Count < 2)
+        {
+            player.SetPath(new List<Vector3>());
             return;
+        }
 
-        sCell last = path.Last();
+        List<Vector3> pathWorld =
+            new List<Vector3>();
 
-        Vector3 destino =
-            GridToWorld(last.row, last.col);
+        int maxIndex =
+            pathGrid.Count - 1;
 
-        player.SetTarget(destino);
+        int pasos =
+            Mathf.Min(
+                player.playerMoveRange,
+                maxIndex
+            );
+
+        for (int i = 1; i <= pasos; i++)
+        {
+            var c = pathGrid[i];
+
+            pathWorld.Add(
+                GridToWorld(
+                    c.row,
+                    c.col
+                )
+            );
+        }
+
+        player.SetPath(pathWorld);
     }
     public void CalcularCaminoEnemy(
         Vector2Int start,
@@ -212,9 +232,6 @@ public class GraphCreator : MonoBehaviour
         }
     }
 
-    // ===============================
-    // CONVERSION
-    // ===============================
 
     public Vector2Int WorldToGrid(
         Vector3 world

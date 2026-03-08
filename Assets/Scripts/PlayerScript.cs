@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerScript : MonoBehaviour
@@ -8,13 +9,12 @@ public class PlayerScript : MonoBehaviour
     public float damage = 50f;
     public float health = 100f;
     public float rangoAtaque = 1.5f;
+    public int playerMoveRange = 3;
 
-    Vector3 target;
-
+    List<Vector3> path = new List<Vector3>();
+    int index = 0;
     bool moviendose = false;
-
     bool yaSeMovio = false;
-
     bool yaAtaco = false;
 
     void Update()
@@ -34,62 +34,61 @@ public class PlayerScript : MonoBehaviour
 
     void Mover()
     {
-        transform.position =
-            Vector3.MoveTowards(
-                transform.position,
-                target,
-                speed * Time.deltaTime
-            );
+        Vector3 target = path[index];
+        transform.position = Vector3.MoveTowards(transform.position, target, speed * Time.deltaTime);
 
         if (Vector3.Distance(transform.position, target) < 0.05f)
         {
             transform.position = target;
+            index++;
 
-            moviendose = false;
-
-            yaSeMovio = true;
-
-            VerificarFinTurno();
+            if (index >= path.Count)
+            {
+                moviendose = false;
+                yaSeMovio = true;
+                VerificarFinTurno();
+            }
         }
     }
 
-    public void SetTarget(Vector3 destino)
+    public void SetPath(List<Vector3> nuevoPath)
     {
         if (yaSeMovio) return;
-
-        destino.y = altura;
-
-        target = destino;
-
+        path = nuevoPath;
+        index = 0;
+        if (path.Count == 0) return;
         moviendose = true;
     }
 
     void IntentarAtacar()
     {
-        if (GameManager.Instance.enemies.Count == 0)
-            return;
+        if (GameManager.Instance.enemies.Count == 0) return;
 
-        EnemyScript enemy = GameManager.Instance.enemies[0];
+        EnemyScript objetivo = null;
+        float distanciaMinima = Mathf.Infinity;
 
-        float distancia =
-            Vector3.Distance(
-                transform.position,
-                enemy.transform.position
-            );
+        var enemigosActuales = new List<EnemyScript>(GameManager.Instance.enemies);
+        foreach (EnemyScript enemy in enemigosActuales)
+        {
+            if (enemy == null) continue;
+            float dist = Vector3.Distance(transform.position, enemy.transform.position);
+            if (dist <= rangoAtaque && dist < distanciaMinima)
+            {
+                distanciaMinima = dist;
+                objetivo = enemy;
+            }
+        }
 
-        if (distancia <= rangoAtaque)
+        if (objetivo != null)
         {
             Debug.Log("PLAYER ATACA");
-
-            enemy.RecibirDamage(damage);
-
+            objetivo.RecibirDamage(damage);
             yaAtaco = true;
-
             VerificarFinTurno();
         }
         else
         {
-            Debug.Log("Fuera de rango");
+            Debug.Log("No hay enemigos en rango");
         }
     }
 
@@ -98,7 +97,6 @@ public class PlayerScript : MonoBehaviour
         if (yaSeMovio && yaAtaco)
         {
             Debug.Log("Jugador termino turno");
-
             GameManager.Instance.SiguienteTurno();
         }
     }
@@ -106,7 +104,6 @@ public class PlayerScript : MonoBehaviour
     public void ReiniciarTurno()
     {
         yaSeMovio = false;
-
         yaAtaco = false;
     }
 
@@ -122,6 +119,22 @@ public class PlayerScript : MonoBehaviour
 
     public void RecibirDamage(float cantidad)
     {
-        Debug.Log(name + " recibe daño: " + cantidad);
+        health -= cantidad;
+        Debug.Log($"{name} recibe daño: {cantidad}. Vida restante: {health}");
+
+        if (health <= 0)
+        {
+            Die();
+        }
+    }
+
+    // NUEVO: Método de muerte
+    void Die()
+    {
+        Debug.Log($"{name} ha muerto.");
+        if (GameManager.Instance != null)
+            GameManager.Instance.RemovePlayer(this);
+
+        Destroy(gameObject);
     }
 }
