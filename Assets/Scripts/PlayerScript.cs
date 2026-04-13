@@ -10,7 +10,7 @@ public class PlayerScript : MonoBehaviour
     public float health = 100f;
     public float rangoAtaque = 1.5f;
     public int playerMoveRange = 3;
-
+    public string playerStats = "Warrior";
     List<Vector3> path = new List<Vector3>();
     int index = 0;
     bool moviendose = false;

@@ -2,6 +2,7 @@
 using UnityEngine.SceneManagement; // Necesario para cargar escenas
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 
 public class GameManager : MonoBehaviour
 {
@@ -9,9 +10,13 @@ public class GameManager : MonoBehaviour
 
     public List<PlayerScript> players = new List<PlayerScript>();
     public List<EnemyScript> enemies = new List<EnemyScript>();
-
+    public List<Transform> turnPos = new List<Transform>();
+    public TMP_Text turnoText;
+    public TMP_Text turnoTextEnemy;
+    public GameObject turno;
+    public GameObject turn;
     [Header("Transición de nivel")]
-    //blic string nombreEscenaSiguiente; 
+    
     public float tiempoEsperaAntesDeCargar = 1f; 
 
     private int turnoIndex = 0;
@@ -30,6 +35,7 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         InicializarTurnos();
+        turnoTextEnemy.gameObject.SetActive(false);
     }
 
     void Update()
@@ -94,13 +100,21 @@ public class GameManager : MonoBehaviour
 
     public PlayerScript JugadorActual()
     {
+        
+        turnoText.text = "Warrior";
         if (turnoIndex < players.Count)
+        {
             return players[turnoIndex];
+            
+        }
         return null;
+        
     }
 
     public EnemyScript EnemyActual()
     {
+        
+        
         int index = turnoIndex - players.Count;
         if (index >= 0 && index < enemies.Count)
             return enemies[index];
@@ -114,6 +128,7 @@ public class GameManager : MonoBehaviour
 
     public bool EsTurnoEnemy()
     {
+        
         return turnoIndex >= players.Count && turnoIndex < players.Count + enemies.Count;
     }
 
@@ -137,6 +152,9 @@ public class GameManager : MonoBehaviour
             PlayerScript player = JugadorActual();
             if (player != null)
             {
+                turnoText.gameObject.SetActive(true);
+                turnoTextEnemy.gameObject.SetActive(false);
+                turnoText.text = "Warrior";
                 player.ReiniciarTurno();
             }
             else
@@ -152,6 +170,9 @@ public class GameManager : MonoBehaviour
             if (enemy != null)
             {
                 enemy.TomarTurno();
+                turnoTextEnemy.text = "Enemy";
+                turnoText.gameObject.SetActive(false);
+                turnoTextEnemy.gameObject.SetActive(true);
             }
             else
             {
