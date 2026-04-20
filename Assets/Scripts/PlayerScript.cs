@@ -128,7 +128,6 @@ public class PlayerScript : MonoBehaviour
         }
     }
 
-    // NUEVO: Método de muerte
     void Die()
     {
         Debug.Log($"{name} ha muerto.");
