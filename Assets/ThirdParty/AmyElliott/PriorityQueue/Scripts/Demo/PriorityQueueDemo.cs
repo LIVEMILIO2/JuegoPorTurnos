@@ -5,8 +5,10 @@ namespace AE
 
     public class PriorityQueueDemo : MonoBehaviour
     {
-        [SerializeField] public Cube[] _cubes;
+        [SerializeField] private Cube[] _cubes;
+        [SerializeField] private Cube2[] _cubes2;
         [SerializeField] private GameObject _cubePrefab;
+        [SerializeField] private GameObject _cubePrefab2;
         private PriorityQueue<Cube> _queue;
         private float _timer = 0;
         private float _dequeueInterval = 2.0f;
@@ -15,19 +17,14 @@ namespace AE
         {
             _queue = new PriorityQueue<Cube>();
 
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < 2; i++)
             {
                 GameObject temp = Instantiate(_cubePrefab, new Vector3(i * 2.0f, 0, 0), Quaternion.identity);
-                temp.GetComponent<Cube>().Size = Random.Range(1, 100); // Assign a random size as priority
+                GameObject temp2 = Instantiate(_cubePrefab, new Vector3(i * -2.0f, 0, 2.0f), Quaternion.identity);
+                temp.GetComponent<Cube>().Size = Random.Range(1, 100);
+                temp2.GetComponent<Cube2>().Size = Random.Range(1, 100);
                 _queue.Enqueue(temp.GetComponent<Cube>(), temp.GetComponent<Cube>().Size);
             }
-
-            // Enqueue objects with their priorities
-            //foreach (Cube obj in _cubes)
-            //{
-            //    int priority = Random.Range(1, 100); // Assign a random priority
-            //    _queue.Enqueue(obj, priority);
-            //}
         }
             
 
