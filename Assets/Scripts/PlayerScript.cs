@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerScript : MonoBehaviour
+public class PlayerScript : MonoBehaviour, ITurnEntity
 {
     public float speed = 5f;
     public float altura = 0.5f;
@@ -11,8 +11,18 @@ public class PlayerScript : MonoBehaviour
     public float rangoAtaque = 1.5f;
     public int playerMoveRange = 3;
     public string playerStats = "Warrior";
+
+    [Header("Iniciativa")]
+    [SerializeField] private int _iniciativa = 10;
+    public int iniciativa
+    {
+        get => _iniciativa;
+        set => _iniciativa = value;
+    }
+
     List<Vector3> path = new List<Vector3>();
     int index = 0;
+
     bool moviendose = false;
     bool yaSeMovio = false;
     bool yaAtaco = false;
@@ -28,14 +38,19 @@ public class PlayerScript : MonoBehaviour
                 IntentarAtacar();
 
             if (Input.GetKeyDown(KeyCode.Space))
-                GameManager.Instance.SiguienteTurno();
+                TerminarTurnoManual();
         }
     }
 
     void Mover()
     {
         Vector3 target = path[index];
-        transform.position = Vector3.MoveTowards(transform.position, target, speed * Time.deltaTime);
+
+        transform.position = Vector3.MoveTowards(
+            transform.position,
+            target,
+            speed * Time.deltaTime
+        );
 
         if (Vector3.Distance(transform.position, target) < 0.05f)
         {
@@ -54,24 +69,41 @@ public class PlayerScript : MonoBehaviour
     public void SetPath(List<Vector3> nuevoPath)
     {
         if (yaSeMovio) return;
+
         path = nuevoPath;
         index = 0;
-        if (path.Count == 0) return;
+
+        if (path.Count == 0)
+        {
+            yaSeMovio = true;
+            VerificarFinTurno();
+            return;
+        }
+
         moviendose = true;
     }
 
     void IntentarAtacar()
     {
-        if (GameManager.Instance.enemies.Count == 0) return;
+        if (GameManager.Instance.enemies.Count == 0)
+        {
+            yaAtaco = true;
+            VerificarFinTurno();
+            return;
+        }
 
         EnemyScript objetivo = null;
         float distanciaMinima = Mathf.Infinity;
 
-        var enemigosActuales = new List<EnemyScript>(GameManager.Instance.enemies);
-        foreach (EnemyScript enemy in enemigosActuales)
+        foreach (EnemyScript enemy in new List<EnemyScript>(GameManager.Instance.enemies))
         {
             if (enemy == null) continue;
-            float dist = Vector3.Distance(transform.position, enemy.transform.position);
+
+            float dist = Vector3.Distance(
+                transform.position,
+                enemy.transform.position
+            );
+
             if (dist <= rangoAtaque && dist < distanciaMinima)
             {
                 distanciaMinima = dist;
@@ -83,28 +115,39 @@ public class PlayerScript : MonoBehaviour
         {
             Debug.Log("PLAYER ATACA");
             objetivo.RecibirDamage(damage);
-            yaAtaco = true;
-            VerificarFinTurno();
         }
         else
         {
             Debug.Log("No hay enemigos en rango");
         }
+
+        yaAtaco = true;
+        VerificarFinTurno();
     }
 
     void VerificarFinTurno()
     {
         if (yaSeMovio && yaAtaco)
         {
-            Debug.Log("Jugador termino turno");
+            Debug.Log("Jugador terminó turno");
             GameManager.Instance.SiguienteTurno();
         }
+    }
+
+    void TerminarTurnoManual()
+    {
+        yaSeMovio = true;
+        yaAtaco = true;
+        VerificarFinTurno();
     }
 
     public void ReiniciarTurno()
     {
         yaSeMovio = false;
         yaAtaco = false;
+        path.Clear();
+        index = 0;
+        moviendose = false;
     }
 
     bool EsMiTurno()
@@ -120,19 +163,18 @@ public class PlayerScript : MonoBehaviour
     public void RecibirDamage(float cantidad)
     {
         health -= cantidad;
+
         Debug.Log($"{name} recibe daño: {cantidad}. Vida restante: {health}");
 
         if (health <= 0)
-        {
             Die();
-        }
     }
 
     void Die()
     {
         Debug.Log($"{name} ha muerto.");
-        if (GameManager.Instance != null)
-            GameManager.Instance.RemovePlayer(this);
+
+        GameManager.Instance?.RemovePlayer(this);
 
         Destroy(gameObject);
     }

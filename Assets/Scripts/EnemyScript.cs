@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EnemyScript : MonoBehaviour
+public class EnemyScript : MonoBehaviour, ITurnEntity
 {
     public float speed = 5f;
     public float altura = 0.5f;
@@ -10,15 +10,19 @@ public class EnemyScript : MonoBehaviour
     public float currentHealth;
 
     public int enemyMoveRange = 3;
-
     public float enemyAtackRange = 1.5f;
-
     public float damage = 25f;
 
+    [Header("Iniciativa")]
+    [SerializeField] private int _iniciativa = 12;
+    public int iniciativa
+    {
+        get => _iniciativa;
+        set => _iniciativa = value;
+    }
+
     List<Vector3> path = new List<Vector3>();
-
     int index = 0;
-
     bool moving = false;
 
     PlayerScript objetivoActual;
@@ -30,43 +34,32 @@ public class EnemyScript : MonoBehaviour
 
     void Update()
     {
-        if (moving)
-            Mover();
+        if (moving) Mover();
     }
 
     public void TomarTurno()
     {
         objetivoActual = ObtenerObjetivo();
+        if (objetivoActual == null)
+        {
+            GameManager.Instance.SiguienteTurno();
+            return;
+        }
 
-        Vector2Int start =
-            GraphCreator.Instance.WorldToGrid(
-                transform.position
-            );
-
-        Vector2Int goal =
-            GraphCreator.Instance.WorldToGrid(
-                objetivoActual.transform.position
-            );
-
-        GraphCreator.Instance.CalcularCaminoEnemy(
-            start,
-            goal,
-            this
-        );
+        Vector2Int start = GraphCreator.Instance.WorldToGrid(transform.position);
+        Vector2Int goal = GraphCreator.Instance.WorldToGrid(objetivoActual.transform.position);
+        GraphCreator.Instance.CalcularCaminoEnemy(start, goal, this);
     }
 
     public void SetPath(List<Vector3> nuevoPath)
     {
         path = nuevoPath;
-
         index = 0;
 
         if (path.Count == 0)
         {
             IntentarAtacar();
-
             GameManager.Instance.SiguienteTurno();
-
             return;
         }
 
@@ -76,17 +69,11 @@ public class EnemyScript : MonoBehaviour
     void Mover()
     {
         Vector3 target = path[index];
-
-        transform.position = Vector3.MoveTowards(
-            transform.position,
-            target,
-            speed * Time.deltaTime
-        );
+        transform.position = Vector3.MoveTowards(transform.position, target, speed * Time.deltaTime);
 
         if (Vector3.Distance(transform.position, target) < 0.05f)
         {
             transform.position = target;
-
             index++;
 
             if (index >= path.Count)
@@ -102,35 +89,21 @@ public class EnemyScript : MonoBehaviour
 
     void IntentarAtacar()
     {
-        if (objetivoActual == null)
-            return;
+        if (objetivoActual == null) return;
 
-        float distancia =
-            Vector3.Distance(
-                transform.position,
-                objetivoActual.transform.position
-            );
-
+        float distancia = Vector3.Distance(transform.position, objetivoActual.transform.position);
         if (distancia <= enemyAtackRange)
-        {
             objetivoActual.RecibirDamage(damage);
-        }
     }
 
     PlayerScript ObtenerObjetivo()
     {
         PlayerScript objetivo = null;
-
         float mejorDistancia = Mathf.Infinity;
 
         foreach (var player in GameManager.Instance.players)
         {
-            float d =
-                Vector3.Distance(
-                    transform.position,
-                    player.transform.position
-                );
-
+            float d = Vector3.Distance(transform.position, player.transform.position);
             if (d < mejorDistancia)
             {
                 mejorDistancia = d;
@@ -144,23 +117,15 @@ public class EnemyScript : MonoBehaviour
     public void RecibirDamage(float cantidad)
     {
         currentHealth -= cantidad;
-
         Debug.Log("Enemy vida: " + currentHealth);
-
-        if (currentHealth <= 0)
-            Die();
+        if (currentHealth <= 0) Die();
     }
 
     void Die()
     {
-        if (GameManager.Instance != null)
-            GameManager.Instance.RemoveEnemy(this);
-
+        GameManager.Instance?.RemoveEnemy(this);
         Destroy(gameObject);
     }
 
-    public bool Moving()
-    {
-        return moving;
-    }
+    public bool Moving() => moving;
 }

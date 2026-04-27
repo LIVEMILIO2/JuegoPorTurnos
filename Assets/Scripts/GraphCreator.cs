@@ -62,21 +62,18 @@ public class GraphCreator : MonoBehaviour
 
 
     public void CalcularCamino(
-        Vector2Int start,
-        Vector2Int goal,
-        PlayerScript player
-    )
+    Vector2Int start,
+    Vector2Int goal,
+    PlayerScript player
+)
     {
         mGraph.Reset();
-
         ResetVisual();
 
         mGraph.SetStart(start);
-
         mGraph.SetGoal(goal);
 
         PintarTile(start.x, start.y);
-
         PintarTile(goal.x, goal.y);
 
         foundok = false;
@@ -86,6 +83,8 @@ public class GraphCreator : MonoBehaviour
             foundok = mGraph.UpdateStep(tiles);
         }
 
+        MarcarCamino();
+
         List<sCell> pathGrid = mGraph.GetOptimalPath();
 
         if (pathGrid.Count < 2)
@@ -94,27 +93,21 @@ public class GraphCreator : MonoBehaviour
             return;
         }
 
-        List<Vector3> pathWorld =
-            new List<Vector3>();
+        List<Vector3> pathWorld = new List<Vector3>();
 
-        int maxIndex =
-            pathGrid.Count - 1;
+        int maxIndex = pathGrid.Count - 1;
 
-        int pasos =
-            Mathf.Min(
-                player.playerMoveRange,
-                maxIndex
-            );
+        int pasos = Mathf.Min(
+            player.playerMoveRange,
+            maxIndex
+        );
 
         for (int i = 1; i <= pasos; i++)
         {
             var c = pathGrid[i];
 
             pathWorld.Add(
-                GridToWorld(
-                    c.row,
-                    c.col
-                )
+                GridToWorld(c.row, c.col)
             );
         }
 
