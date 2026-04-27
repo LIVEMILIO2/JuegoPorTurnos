@@ -7,7 +7,7 @@ namespace AE
     {
         public int Size = 1;
 
-        public Cube(int size)
+       void newValue(int size)
         {
             Size = size;
         }
@@ -15,6 +15,14 @@ namespace AE
         public void ResetNode()
         {
             Size = 0;
+        }
+        public void ProcessCube()
+        {
+            var renderer = gameObject.GetComponent<Renderer>();
+            if (renderer != null)
+            {
+                renderer.material.color = Color.magenta;
+            }
         }
     }
 }
