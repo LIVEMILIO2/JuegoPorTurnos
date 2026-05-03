@@ -17,16 +17,29 @@ public class sCell
     public sCell parent;
 }
 
+// Wrapper MonoBehaviour para que sCell pueda entrar en la PriorityQueue del asset
+// (el asset requiere que TElement sea un Component)
+public class sCellMono : MonoBehaviour
+{
+    public sCell cell;
+}
+
 public class Graph
 {
     public List<List<eCellType>> mGrid = new List<List<eCellType>>();
     public int mCount;
 
-    public List<sCell> ListaAbierta = new List<sCell>();
+    // La lista abierta ahora es una PriorityQueue del asset
+    // TElement = sCellMono (Component), prioridad = f (int)
+    private PriorityQueue<sCellMono> openQueue;
+    private GameObject queueHost; // GameObject temporal que hostea los MonoBehaviours
+
     public List<sCell> ListaCerrada = new List<sCell>();
+    private HashSet<(int, int)> inOpen = new HashSet<(int, int)>();
 
     Vector2Int start;
     Vector2Int goal;
+
     public void populateGrid(int size)
     {
         mCount = size;
@@ -39,10 +52,18 @@ public class Graph
                 mGrid[i].Add(eCellType.empty);
         }
     }
+
     public void Reset()
     {
-        ListaAbierta.Clear();
+        // Limpiar GameObjects temporales del paso anterior
+        if (queueHost != null)
+            GameObject.Destroy(queueHost);
+
+        queueHost = new GameObject("_AStarQueue");
+        openQueue = new PriorityQueue<sCellMono>();
+        inOpen.Clear();
         ListaCerrada.Clear();
+
         for (int r = 0; r < mCount; r++)
             for (int c = 0; c < mCount; c++)
                 if (mGrid[r][c] == eCellType.start || mGrid[r][c] == eCellType.goal)
@@ -59,7 +80,9 @@ public class Graph
         cell.sofar = 0;
         cell.parent = null;
 
-        ListaAbierta.Add(cell);
+        int h = ReturnHeuristica(s.x, s.y);
+        EnqueueCell(cell, h); // f = 0 + h
+
         mGrid[s.x][s.y] = eCellType.start;
     }
 
@@ -71,44 +94,28 @@ public class Graph
 
     public bool UpdateStep(GameObject[,] tiles)
     {
-        if (ListaAbierta.Count == 0)
+        if (openQueue.IsEmpty())
             return true;
 
-        int bestIndex = 0;
-        int bestF = int.MaxValue;
-
-        for (int i = 0; i < ListaAbierta.Count; i++)
-        {
-            int g = ListaAbierta[i].sofar;
-            int h = ReturnHeuristica(ListaAbierta[i].row, ListaAbierta[i].col);
-            int f = g + h;
-
-            if (f < bestF)
-            {
-                bestF = f;
-                bestIndex = i;
-            }
-        }
-
-        sCell current = ListaAbierta[bestIndex];
-        ListaAbierta.RemoveAt(bestIndex);
+        sCellMono mono = openQueue.Dequeue();
+        sCell current = mono.cell;
+        inOpen.Remove((current.row, current.col));
         ListaCerrada.Add(current);
 
-        tiles[current.row, current.col].GetComponent<Renderer>().material.color = Color.yellow;
+        tiles[current.row, current.col]
+            .GetComponent<Renderer>().material.color = Color.yellow;
 
         if (current.row == goal.x && current.col == goal.y)
             return true;
 
-        int r = current.row;
-        int c = current.col;
-
-        TryAddCell(r - 1, c, current);
-        TryAddCell(r + 1, c, current);
-        TryAddCell(r, c - 1, current);
-        TryAddCell(r, c + 1, current);
+        TryAddCell(current.row - 1, current.col, current);
+        TryAddCell(current.row + 1, current.col, current);
+        TryAddCell(current.row, current.col - 1, current);
+        TryAddCell(current.row, current.col + 1, current);
 
         return false;
     }
+
     void TryAddCell(int row, int col, sCell parent)
     {
         if (row < 0 || col < 0 || row >= mCount || col >= mCount)
@@ -117,7 +124,7 @@ public class Graph
         if (mGrid[row][col] == eCellType.blocked)
             return;
 
-        if (ListaAbierta.Any(c => c.row == row && c.col == col))
+        if (inOpen.Contains((row, col)))
             return;
 
         if (ListaCerrada.Any(c => c.row == row && c.col == col))
@@ -129,8 +136,20 @@ public class Graph
         cell.parent = parent;
         cell.sofar = parent.sofar + 10;
 
-        ListaAbierta.Add(cell);
+        int h = ReturnHeuristica(row, col);
+        int f = cell.sofar + h;
+
+        EnqueueCell(cell, f);
     }
+
+    void EnqueueCell(sCell cell, int priority)
+    {
+        sCellMono mono = queueHost.AddComponent<sCellMono>();
+        mono.cell = cell;
+        openQueue.Enqueue(mono, priority);
+        inOpen.Add((cell.row, cell.col));
+    }
+
     public List<sCell> GetOptimalPath()
     {
         List<sCell> path = new List<sCell>();
@@ -148,6 +167,7 @@ public class Graph
         path.Reverse();
         return path;
     }
+
     int ReturnHeuristica(int row, int col)
     {
         int dx = Mathf.Abs(goal.x - row);

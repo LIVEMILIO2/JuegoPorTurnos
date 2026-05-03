@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EnemyScript : MonoBehaviour, ITurnEntity
+public class EnemyScript : MonoBehaviour
 {
     public float speed = 5f;
     public float altura = 0.5f;
@@ -14,7 +14,7 @@ public class EnemyScript : MonoBehaviour, ITurnEntity
     public float damage = 25f;
 
     [Header("Iniciativa")]
-    [SerializeField] private int _iniciativa = 12;
+    [SerializeField] private int _iniciativa = 5;
     public int iniciativa
     {
         get => _iniciativa;
@@ -79,9 +79,7 @@ public class EnemyScript : MonoBehaviour, ITurnEntity
             if (index >= path.Count)
             {
                 moving = false;
-
                 IntentarAtacar();
-
                 GameManager.Instance.SiguienteTurno();
             }
         }

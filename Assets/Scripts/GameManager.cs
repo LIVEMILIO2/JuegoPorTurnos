@@ -10,6 +10,7 @@ public class GameManager : MonoBehaviour
     public List<PlayerScript> players = new List<PlayerScript>();
     public List<EnemyScript> enemies = new List<EnemyScript>();
 
+    [Header("UI Turno")]
     public TMP_Text nombreText;
     public TMP_Text vidaText;
     public TMP_Text movimientoText;
@@ -17,8 +18,7 @@ public class GameManager : MonoBehaviour
 
     private PlayerScript playerActual;
     private EnemyScript enemyActual;
-
-    private PriorityQueue<ITurnEntity> turnQueue = new PriorityQueue<ITurnEntity>();
+    private PriorityQueue<MonoBehaviour> turnQueue = new PriorityQueue<MonoBehaviour>();
 
     void Awake()
     {
@@ -26,8 +26,9 @@ public class GameManager : MonoBehaviour
         else Destroy(gameObject);
     }
 
-    void Start()
+    System.Collections.IEnumerator Start()
     {
+        yield return null;
         InicializarRonda();
     }
 
@@ -45,7 +46,7 @@ public class GameManager : MonoBehaviour
 
     void ConstruirCola()
     {
-        turnQueue.Clear();
+        turnQueue = new PriorityQueue<MonoBehaviour>();
 
         foreach (var p in players)
             if (p != null)
@@ -61,7 +62,7 @@ public class GameManager : MonoBehaviour
         playerActual = null;
         enemyActual = null;
 
-        if (turnQueue.Count == 0)
+        if (turnQueue.IsEmpty())
         {
             InicializarRonda();
             return;
@@ -72,13 +73,13 @@ public class GameManager : MonoBehaviour
 
     void ActivarSiguiente()
     {
-        while (turnQueue.Count > 0)
+        while (!turnQueue.IsEmpty())
         {
-            ITurnEntity next = turnQueue.Dequeue();
+            MonoBehaviour next = turnQueue.Dequeue();
 
             if (next == null) continue;
 
-            if (next is PlayerScript p && p != null)
+            if (next is PlayerScript p)
             {
                 playerActual = p;
                 p.ReiniciarTurno();
@@ -86,7 +87,7 @@ public class GameManager : MonoBehaviour
                 return;
             }
 
-            if (next is EnemyScript e && e != null)
+            if (next is EnemyScript e)
             {
                 enemyActual = e;
                 e.TomarTurno();
@@ -110,12 +111,12 @@ public class GameManager : MonoBehaviour
 
     public void ReconstruirColaActual()
     {
-        List<ITurnEntity> restantes = new List<ITurnEntity>();
+        List<MonoBehaviour> restantes = new List<MonoBehaviour>();
 
-        while (turnQueue.Count > 0)
+        while (!turnQueue.IsEmpty())
             restantes.Add(turnQueue.Dequeue());
 
-        turnQueue.Clear();
+        turnQueue = new PriorityQueue<MonoBehaviour>();
 
         foreach (var entity in restantes)
         {
