@@ -13,32 +13,22 @@ public class PlayerScript : MonoBehaviour
     public string playerStats = "Warrior";
 
     [Header("Iniciativa")]
-    [SerializeField] private int _iniciativa = 10;
-    public int iniciativa
-    {
-        get => _iniciativa;
-        set => _iniciativa = value;
-    }
+    public int iniciativa = 10;
+
+    [Header("Indicador de turno")]
+    public GameObject indicadorTurno;
+
+    [HideInInspector] public bool yaSeMovio = false;
+    [HideInInspector] public bool yaUsoAccion = false;
+    [HideInInspector] public bool estaDefendiendo = false;
 
     List<Vector3> path = new List<Vector3>();
     int index = 0;
     bool moviendose = false;
-    bool yaSeMovio = false;
-    bool yaAtaco = false;
 
     void Update()
     {
-        if (moviendose)
-            Mover();
-
-        if (EsMiTurno())
-        {
-            if (!yaAtaco && Input.GetKeyDown(KeyCode.F))
-                IntentarAtacar();
-
-            if (Input.GetKeyDown(KeyCode.Space))
-                GameManager.Instance.SiguienteTurno();
-        }
+        if (moviendose) Mover();
     }
 
     void Mover()
@@ -55,7 +45,11 @@ public class PlayerScript : MonoBehaviour
             {
                 moviendose = false;
                 yaSeMovio = true;
-                VerificarFinTurno();
+
+                ActionPanelUI.Instance?.RefrescarBotones(this);
+
+                if (yaUsoAccion)
+                    GameManager.Instance.SiguienteTurno();
             }
         }
     }
@@ -65,62 +59,30 @@ public class PlayerScript : MonoBehaviour
         if (yaSeMovio) return;
         path = nuevoPath;
         index = 0;
-        if (path.Count == 0) return;
+        if (path.Count == 0)
+        {
+            ActionPanelUI.Instance?.RefrescarBotones(this);
+            return;
+        }
         moviendose = true;
-    }
-
-    void IntentarAtacar()
-    {
-        if (GameManager.Instance.enemies.Count == 0) return;
-
-        EnemyScript objetivo = null;
-        float distanciaMinima = Mathf.Infinity;
-
-        foreach (EnemyScript enemy in new List<EnemyScript>(GameManager.Instance.enemies))
-        {
-            if (enemy == null) continue;
-            float dist = Vector3.Distance(transform.position, enemy.transform.position);
-            if (dist <= rangoAtaque && dist < distanciaMinima)
-            {
-                distanciaMinima = dist;
-                objetivo = enemy;
-            }
-        }
-
-        if (objetivo != null)
-        {
-            Debug.Log("PLAYER ATACA");
-            objetivo.RecibirDamage(damage);
-            yaAtaco = true;
-            VerificarFinTurno();
-        }
-        else
-        {
-            Debug.Log("No hay enemigos en rango");
-        }
-    }
-
-    void VerificarFinTurno()
-    {
-        if (yaSeMovio && yaAtaco)
-        {
-            Debug.Log("Jugador terminó turno");
-            GameManager.Instance.SiguienteTurno();
-        }
     }
 
     public void ReiniciarTurno()
     {
         yaSeMovio = false;
-        yaAtaco = false;
+        yaUsoAccion = false;
+        estaDefendiendo = false;
+
+        if (indicadorTurno != null) indicadorTurno.SetActive(true);
+        ActionPanelUI.Instance?.MostrarPanel(this);
     }
 
-    bool EsMiTurno() => GameManager.Instance.JugadorActual() == this;
-
+    public bool EsMiTurno() => GameManager.Instance.JugadorActual() == this;
     public bool EstaMoviendose() => moviendose;
 
     public void RecibirDamage(float cantidad)
     {
+        if (estaDefendiendo) cantidad *= 0.5f;
         health -= cantidad;
         Debug.Log($"{name} recibe daño: {cantidad}. Vida restante: {health}");
         if (health <= 0) Die();
@@ -129,6 +91,7 @@ public class PlayerScript : MonoBehaviour
     void Die()
     {
         Debug.Log($"{name} ha muerto.");
+        ActionPanelUI.Instance?.OcultarPanel();
         GameManager.Instance?.RemovePlayer(this);
         Destroy(gameObject);
     }

@@ -6,6 +6,9 @@ public class EnemyScript : MonoBehaviour
     public float speed = 5f;
     public float altura = 0.5f;
 
+    [Header("Indicador de turno")]
+    public GameObject indicadorTurno;
+
     public float Heatlh = 100;
     public float currentHealth;
 
@@ -39,6 +42,7 @@ public class EnemyScript : MonoBehaviour
 
     public void TomarTurno()
     {
+        if (indicadorTurno != null) indicadorTurno.SetActive(true);
         objetivoActual = ObtenerObjetivo();
         if (objetivoActual == null)
         {

@@ -20,6 +20,9 @@ public class GameManager : MonoBehaviour
     private EnemyScript enemyActual;
     private PriorityQueue<MonoBehaviour> turnQueue = new PriorityQueue<MonoBehaviour>();
 
+ 
+    private bool modoMovimiento = false;
+
     void Awake()
     {
         if (Instance == null) Instance = this;
@@ -34,9 +37,11 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
-        if (playerActual != null && !playerActual.EstaMoviendose())
+        if (playerActual != null && !playerActual.EstaMoviendose() && modoMovimiento)
             DetectarClickMovimiento();
     }
+
+
 
     void InicializarRonda()
     {
@@ -49,18 +54,19 @@ public class GameManager : MonoBehaviour
         turnQueue = new PriorityQueue<MonoBehaviour>();
 
         foreach (var p in players)
-            if (p != null)
-                turnQueue.Enqueue(p, -p.iniciativa);
+            if (p != null) turnQueue.Enqueue(p, -p.iniciativa);
 
         foreach (var e in enemies)
-            if (e != null)
-                turnQueue.Enqueue(e, -e.iniciativa);
+            if (e != null) turnQueue.Enqueue(e, -e.iniciativa);
     }
 
     public void SiguienteTurno()
     {
+        modoMovimiento = false;
         playerActual = null;
         enemyActual = null;
+        ActionPanelUI.Instance?.OcultarPanel();
+        GraphCreator.Instance?.ResetVisual();
 
         if (turnQueue.IsEmpty())
         {
@@ -71,18 +77,29 @@ public class GameManager : MonoBehaviour
         ActivarSiguiente();
     }
 
+    void ApagarIndicadores()
+    {
+        foreach (var p in players)
+            if (p != null && p.indicadorTurno != null)
+                p.indicadorTurno.SetActive(false);
+
+        foreach (var e in enemies)
+            if (e != null && e.indicadorTurno != null)
+                e.indicadorTurno.SetActive(false);
+    }
+
     void ActivarSiguiente()
     {
+        ApagarIndicadores();
         while (!turnQueue.IsEmpty())
         {
             MonoBehaviour next = turnQueue.Dequeue();
-
             if (next == null) continue;
 
             if (next is PlayerScript p)
             {
                 playerActual = p;
-                p.ReiniciarTurno();
+                p.ReiniciarTurno(); 
                 ActualizarUI();
                 return;
             }
@@ -99,6 +116,7 @@ public class GameManager : MonoBehaviour
         InicializarRonda();
     }
 
+
     public void ModificarIniciativa(PlayerScript player, int nuevaIniciativa)
     {
         player.iniciativa = nuevaIniciativa;
@@ -112,7 +130,6 @@ public class GameManager : MonoBehaviour
     public void ReconstruirColaActual()
     {
         List<MonoBehaviour> restantes = new List<MonoBehaviour>();
-
         while (!turnQueue.IsEmpty())
             restantes.Add(turnQueue.Dequeue());
 
@@ -127,10 +144,12 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public PlayerScript JugadorActual() => playerActual;
-    public EnemyScript EnemyActual() => enemyActual;
-    public bool EsTurnoPlayer() => playerActual != null;
-    public bool EsTurnoEnemy() => enemyActual != null;
+  
+
+    public void ActivarModoMovimiento()
+    {
+        modoMovimiento = true;
+    }
 
     void DetectarClickMovimiento()
     {
@@ -140,12 +159,19 @@ public class GameManager : MonoBehaviour
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(ray, out RaycastHit hit))
         {
+            modoMovimiento = false;
             Vector2Int start = GraphCreator.Instance.WorldToGrid(playerActual.transform.position);
             Vector2Int goal = GraphCreator.Instance.WorldToGrid(hit.point);
             GraphCreator.Instance.CalcularCamino(start, goal, playerActual);
         }
     }
 
+    public PlayerScript JugadorActual() => playerActual;
+    public EnemyScript EnemyActual() => enemyActual;
+    public bool EsTurnoPlayer() => playerActual != null;
+    public bool EsTurnoEnemy() => enemyActual != null;
+
+  
     void ActualizarUI()
     {
         if (playerActual != null)
@@ -167,8 +193,8 @@ public class GameManager : MonoBehaviour
     public void BotonPasarTurno()
     {
         SiguienteTurno();
-        GraphCreator.Instance?.ResetVisual();
     }
+
 
     public void RemoveEnemy(EnemyScript enemy)
     {
