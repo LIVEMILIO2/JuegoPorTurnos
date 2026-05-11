@@ -38,7 +38,6 @@ public class ActionPanelUI : MonoBehaviour
         OcultarPanel();
     }
 
-    // ─── Mostrar / Ocultar ───────────────────────────────────────────────
 
     public void MostrarPanel(PlayerScript player)
     {
@@ -67,7 +66,6 @@ public class ActionPanelUI : MonoBehaviour
         statusText.text = $"{mov}\n{accion}";
     }
 
-    // ─── Callbacks ───────────────────────────────────────────────────────
 
     void OnMover()
     {
@@ -149,7 +147,7 @@ public class ActionPanelUI : MonoBehaviour
         GameManager.Instance.BotonPasarTurno();
     }
 
-    // ─── Helpers ─────────────────────────────────────────────────────────
+
 
     void UsarAccion(PlayerScript player)
     {
@@ -172,7 +170,7 @@ public class ActionPanelUI : MonoBehaviour
             if (d < mejorDist) { mejorDist = d; mejor = e; }
         }
 
-        // Solo retornar si está en rango de ataque
+   
         if (mejor != null && mejorDist <= player.rangoAtaque)
             return mejor;
 
