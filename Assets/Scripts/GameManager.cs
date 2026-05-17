@@ -19,9 +19,10 @@ public class GameManager : MonoBehaviour
     private PlayerScript playerActual;
     private EnemyScript enemyActual;
     private PriorityQueue<MonoBehaviour> turnQueue = new PriorityQueue<MonoBehaviour>();
-
- 
     private bool modoMovimiento = false;
+
+    // Lista ordenada para la barra de turnos
+    private List<TurnEntry> ordenActual = new List<TurnEntry>();
 
     void Awake()
     {
@@ -41,7 +42,7 @@ public class GameManager : MonoBehaviour
             DetectarClickMovimiento();
     }
 
-
+    // ─── Cola ────────────────────────────────────────────────────────────────
 
     void InicializarRonda()
     {
@@ -58,6 +59,43 @@ public class GameManager : MonoBehaviour
 
         foreach (var e in enemies)
             if (e != null) turnQueue.Enqueue(e, -e.iniciativa);
+
+        RefrescarOrdenBarra();
+    }
+
+    // Construye la lista ordenada leyendo la cola sin destruirla
+    void RefrescarOrdenBarra()
+    {
+        // Reconstruimos una lista ordenada por iniciativa descendente
+        ordenActual.Clear();
+
+        List<PlayerScript> ps = new List<PlayerScript>(players);
+        List<EnemyScript> es = new List<EnemyScript>(enemies);
+
+        // Unir todos y ordenar por iniciativa descendente
+        List<(MonoBehaviour mb, int ini, bool esPlayer)> todos = new List<(MonoBehaviour, int, bool)>();
+
+        foreach (var p in ps) if (p != null) todos.Add((p, p.iniciativa, true));
+        foreach (var e in es) if (e != null) todos.Add((e, e.iniciativa, false));
+
+        todos.Sort((a, b) => b.ini.CompareTo(a.ini));
+
+        foreach (var t in todos)
+        {
+            Sprite spr = t.esPlayer
+                ? ((PlayerScript)t.mb).portrait
+                : ((EnemyScript)t.mb).portrait;
+
+            ordenActual.Add(new TurnEntry
+            {
+                entidad = t.mb,
+                portrait = spr,
+                esPlayer = t.esPlayer
+            });
+        }
+
+        MonoBehaviour activo = (MonoBehaviour)playerActual ?? enemyActual;
+        TurnBarUI.Instance?.Refrescar(ordenActual, activo);
     }
 
     public void SiguienteTurno()
@@ -91,6 +129,7 @@ public class GameManager : MonoBehaviour
     void ActivarSiguiente()
     {
         ApagarIndicadores();
+
         while (!turnQueue.IsEmpty())
         {
             MonoBehaviour next = turnQueue.Dequeue();
@@ -99,8 +138,9 @@ public class GameManager : MonoBehaviour
             if (next is PlayerScript p)
             {
                 playerActual = p;
-                p.ReiniciarTurno(); 
+                p.ReiniciarTurno();
                 ActualizarUI();
+                RefrescarOrdenBarra();
                 return;
             }
 
@@ -109,6 +149,7 @@ public class GameManager : MonoBehaviour
                 enemyActual = e;
                 e.TomarTurno();
                 ActualizarUI();
+                RefrescarOrdenBarra();
                 return;
             }
         }
@@ -116,6 +157,7 @@ public class GameManager : MonoBehaviour
         InicializarRonda();
     }
 
+    // ─── Iniciativa ──────────────────────────────────────────────────────────
 
     public void ModificarIniciativa(PlayerScript player, int nuevaIniciativa)
     {
@@ -142,9 +184,11 @@ public class GameManager : MonoBehaviour
             else if (entity is EnemyScript e && e != null)
                 turnQueue.Enqueue(e, -e.iniciativa);
         }
+
+        RefrescarOrdenBarra();
     }
 
-  
+    // ─── Modo movimiento ─────────────────────────────────────────────────────
 
     public void ActivarModoMovimiento()
     {
@@ -166,12 +210,15 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    // ─── Consultas ───────────────────────────────────────────────────────────
+
     public PlayerScript JugadorActual() => playerActual;
     public EnemyScript EnemyActual() => enemyActual;
     public bool EsTurnoPlayer() => playerActual != null;
     public bool EsTurnoEnemy() => enemyActual != null;
 
-  
+    // ─── UI ──────────────────────────────────────────────────────────────────
+
     void ActualizarUI()
     {
         if (playerActual != null)
@@ -195,10 +242,12 @@ public class GameManager : MonoBehaviour
         SiguienteTurno();
     }
 
+    // ─── Eliminación ─────────────────────────────────────────────────────────
 
     public void RemoveEnemy(EnemyScript enemy)
     {
         enemies.Remove(enemy);
+        RefrescarOrdenBarra();
 
         if (enemies.Count == 0)
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
@@ -213,6 +262,7 @@ public class GameManager : MonoBehaviour
     public void RemovePlayer(PlayerScript player)
     {
         players.Remove(player);
+        RefrescarOrdenBarra();
 
         if (players.Count == 0)
         {

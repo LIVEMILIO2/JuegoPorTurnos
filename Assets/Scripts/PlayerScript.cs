@@ -15,12 +15,11 @@ public class PlayerScript : MonoBehaviour
     [Header("Iniciativa")]
     public int iniciativa = 10;
 
+    [Header("Barra de turnos")]
+    public Sprite portrait;
+
     [Header("Indicador de turno")]
     public GameObject indicadorTurno;
-
-    [Header("Animations")]
-    public Animator animator;
-    public RuntimeAnimatorController walk;
 
     [HideInInspector] public bool yaSeMovio = false;
     [HideInInspector] public bool yaUsoAccion = false;
@@ -30,10 +29,6 @@ public class PlayerScript : MonoBehaviour
     int index = 0;
     bool moviendose = false;
 
-    void Start()
-    {
-        animator = GetComponent<Animator>();
-    }
     void Update()
     {
         if (moviendose) Mover();
@@ -53,7 +48,6 @@ public class PlayerScript : MonoBehaviour
             {
                 moviendose = false;
                 yaSeMovio = true;
-
                 ActionPanelUI.Instance?.RefrescarBotones(this);
 
                 if (yaUsoAccion)
@@ -73,7 +67,6 @@ public class PlayerScript : MonoBehaviour
             return;
         }
         moviendose = true;
-        animator.runtimeAnimatorController = walk;
     }
 
     public void ReiniciarTurno()
