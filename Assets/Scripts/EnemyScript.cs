@@ -6,9 +6,6 @@ public class EnemyScript : MonoBehaviour
     public float speed = 5f;
     public float altura = 0.5f;
 
-    [Header("Indicador de turno")]
-    public GameObject indicadorTurno;
-
     public float Heatlh = 100;
     public float currentHealth;
 
@@ -17,17 +14,17 @@ public class EnemyScript : MonoBehaviour
     public float damage = 25f;
 
     [Header("Iniciativa")]
-    [SerializeField] private int _iniciativa = 5;
-    public int iniciativa
-    {
-        get => _iniciativa;
-        set => _iniciativa = value;
-    }
+    public int iniciativa = 5;
+
+    [Header("Barra de turnos")]
+    public Sprite portrait;
+
+    [Header("Indicador de turno")]
+    public GameObject indicadorTurno;
 
     List<Vector3> path = new List<Vector3>();
     int index = 0;
     bool moving = false;
-
     PlayerScript objetivoActual;
 
     void Start()
@@ -43,6 +40,7 @@ public class EnemyScript : MonoBehaviour
     public void TomarTurno()
     {
         if (indicadorTurno != null) indicadorTurno.SetActive(true);
+
         objetivoActual = ObtenerObjetivo();
         if (objetivoActual == null)
         {
@@ -92,7 +90,6 @@ public class EnemyScript : MonoBehaviour
     void IntentarAtacar()
     {
         if (objetivoActual == null) return;
-
         float distancia = Vector3.Distance(transform.position, objetivoActual.transform.position);
         if (distancia <= enemyAtackRange)
             objetivoActual.RecibirDamage(damage);
@@ -106,13 +103,8 @@ public class EnemyScript : MonoBehaviour
         foreach (var player in GameManager.Instance.players)
         {
             float d = Vector3.Distance(transform.position, player.transform.position);
-            if (d < mejorDistancia)
-            {
-                mejorDistancia = d;
-                objetivo = player;
-            }
+            if (d < mejorDistancia) { mejorDistancia = d; objetivo = player; }
         }
-
         return objetivo;
     }
 
