@@ -3083,6 +3083,8 @@ MonoBehaviour:
   iniciativa: 10
   portrait: {fileID: 0}
   indicadorTurno: {fileID: 721231850}
+  animator: {fileID: 1221803786}
+  walk: {fileID: 9100000, guid: f7fd5f5e080813447a07746805248a83, type: 2}
   yaSeMovio: 0
   yaUsoAccion: 0
   estaDefendiendo: 0

@@ -21,6 +21,10 @@ public class PlayerScript : MonoBehaviour
     [Header("Indicador de turno")]
     public GameObject indicadorTurno;
 
+    [Header("Animations")]
+    public Animator animator;
+    public RuntimeAnimatorController walk;
+
     [HideInInspector] public bool yaSeMovio = false;
     [HideInInspector] public bool yaUsoAccion = false;
     [HideInInspector] public bool estaDefendiendo = false;
@@ -29,6 +33,10 @@ public class PlayerScript : MonoBehaviour
     int index = 0;
     bool moviendose = false;
 
+    void Start()
+    {
+        animator = GetComponent<Animator>();
+    }
     void Update()
     {
         if (moviendose) Mover();
@@ -67,6 +75,7 @@ public class PlayerScript : MonoBehaviour
             return;
         }
         moviendose = true;
+        animator.runtimeAnimatorController = walk;
     }
 
     public void ReiniciarTurno()

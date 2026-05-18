@@ -42,8 +42,6 @@ public class GameManager : MonoBehaviour
             DetectarClickMovimiento();
     }
 
-    // ─── Cola ────────────────────────────────────────────────────────────────
-
     void InicializarRonda()
     {
         ConstruirCola();
@@ -61,8 +59,6 @@ public class GameManager : MonoBehaviour
         foreach (var e in enemies)
             if (e != null) turnQueue.Enqueue(e, -e.iniciativa);
     }
-
-    // Construye la lista ordenada leyendo la cola sin destruirla
     void RefrescarOrdenBarra()
     {
         // Reconstruimos una lista ordenada por iniciativa descendente
@@ -159,8 +155,6 @@ public class GameManager : MonoBehaviour
         InicializarRonda();
     }
 
-    // ─── Iniciativa ──────────────────────────────────────────────────────────
-
     public void ModificarIniciativa(PlayerScript player, int nuevaIniciativa)
     {
         player.iniciativa = nuevaIniciativa;
@@ -189,9 +183,6 @@ public class GameManager : MonoBehaviour
 
         RefrescarOrdenBarra();
     }
-
-    // ─── Modo movimiento ─────────────────────────────────────────────────────
-
     public void ActivarModoMovimiento()
     {
         modoMovimiento = true;
@@ -212,14 +203,10 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    // ─── Consultas ───────────────────────────────────────────────────────────
-
     public PlayerScript JugadorActual() => playerActual;
     public EnemyScript EnemyActual() => enemyActual;
     public bool EsTurnoPlayer() => playerActual != null;
     public bool EsTurnoEnemy() => enemyActual != null;
-
-    // ─── UI ──────────────────────────────────────────────────────────────────
 
     void ActualizarUI()
     {
@@ -243,8 +230,6 @@ public class GameManager : MonoBehaviour
     {
         SiguienteTurno();
     }
-
-    // ─── Eliminación ─────────────────────────────────────────────────────────
 
     public void RemoveEnemy(EnemyScript enemy)
     {

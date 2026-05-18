@@ -2,20 +2,12 @@
 using UnityEngine.UI;
 using TMPro;
 
-/// <summary>
-/// Un slot de la barra de turnos, sin sprites.
-/// 
-/// Estructura del prefab (todo UI):
-///   TurnSlot  (RectTransform 60x60 + Image fondo + este script)
-///     └── Borde  (Image — outline, desactivado por defecto)
-///     └── Nombre (TMP_Text opcional, para mostrar inicial)
-/// </summary>
 public class TurnSlot : MonoBehaviour
 {
     [Header("Referencias")]
     public Image fondo;
     public Image borde;
-    public TMP_Text label;   // Opcional: muestra "P" o "E"
+    public TMP_Text label;  
 
     [Header("Colores")]
     public Color colorPlayer = new Color(0.2f, 0.5f, 1f);
