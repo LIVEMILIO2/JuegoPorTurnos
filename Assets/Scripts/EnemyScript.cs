@@ -21,6 +21,9 @@ public class EnemyScript : MonoBehaviour
 
     [Header("Indicador de turno")]
     public GameObject indicadorTurno;
+    [Header("Animaciones")]
+    public Animator animator;
+    public RuntimeAnimatorController walk;
 
     List<Vector3> path = new List<Vector3>();
     int index = 0;
@@ -66,6 +69,7 @@ public class EnemyScript : MonoBehaviour
         }
 
         moving = true;
+        animator.runtimeAnimatorController = walk;
     }
 
     void Mover()
