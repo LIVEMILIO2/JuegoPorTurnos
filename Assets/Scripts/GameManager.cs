@@ -214,14 +214,14 @@ public class GameManager : MonoBehaviour
         {
             nombreText.text = playerActual.playerStats;
             vidaText.text = "Vida: " + playerActual.health;
-            movimientoText.text = "Movimiento: " + playerActual.playerMoveRange;
+            movimientoText.text = "Movimiento:" + playerActual.playerMoveRange;
             ataqueText.text = "Ataque: " + playerActual.damage;
         }
         else if (enemyActual != null)
         {
             nombreText.text = "Enemy";
             vidaText.text = "Vida: " + enemyActual.currentHealth;
-            movimientoText.text = "Movimiento: " + enemyActual.enemyMoveRange;
+            movimientoText.text = "Movimiento:" + enemyActual.enemyMoveRange;
             ataqueText.text = "Ataque: " + enemyActual.damage;
         }
     }

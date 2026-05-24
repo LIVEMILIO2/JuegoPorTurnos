@@ -5,7 +5,6 @@ public class PlayerScript : MonoBehaviour
 {
     public float speed = 5f;
     public float altura = 0.5f;
-
     public float damage = 50f;
     public float health = 100f;
     public float rangoAtaque = 1.5f;
@@ -21,9 +20,12 @@ public class PlayerScript : MonoBehaviour
     [Header("Indicador de turno")]
     public GameObject indicadorTurno;
 
-    [Header("Animations")]
+    [Header("Animaciones")]
     public Animator animator;
     public RuntimeAnimatorController walk;
+
+    [Header("Rotacion")]
+    public float rotationSpeed = 10f; // Que tan rapido gira
 
     [HideInInspector] public bool yaSeMovio = false;
     [HideInInspector] public bool yaUsoAccion = false;
@@ -37,6 +39,7 @@ public class PlayerScript : MonoBehaviour
     {
         animator = GetComponent<Animator>();
     }
+
     void Update()
     {
         if (moviendose) Mover();
@@ -45,6 +48,19 @@ public class PlayerScript : MonoBehaviour
     void Mover()
     {
         Vector3 target = path[index];
+
+        // Rotar hacia el destino antes de moverse
+        Vector3 direccion = (target - transform.position).normalized;
+        if (direccion != Vector3.zero)
+        {
+            Quaternion rotacionObjetivo = Quaternion.LookRotation(direccion);
+            transform.rotation = Quaternion.Slerp(
+                transform.rotation,
+                rotacionObjetivo,
+                rotationSpeed * Time.deltaTime
+            );
+        }
+
         transform.position = Vector3.MoveTowards(transform.position, target, speed * Time.deltaTime);
 
         if (Vector3.Distance(transform.position, target) < 0.05f)
@@ -83,7 +99,6 @@ public class PlayerScript : MonoBehaviour
         yaSeMovio = false;
         yaUsoAccion = false;
         estaDefendiendo = false;
-
         if (indicadorTurno != null) indicadorTurno.SetActive(true);
         ActionPanelUI.Instance?.MostrarPanel(this);
     }

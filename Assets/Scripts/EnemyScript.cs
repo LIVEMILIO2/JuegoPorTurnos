@@ -5,10 +5,8 @@ public class EnemyScript : MonoBehaviour
 {
     public float speed = 5f;
     public float altura = 0.5f;
-
     public float Heatlh = 100;
     public float currentHealth;
-
     public int enemyMoveRange = 3;
     public float enemyAtackRange = 1.5f;
     public float damage = 25f;
@@ -21,9 +19,13 @@ public class EnemyScript : MonoBehaviour
 
     [Header("Indicador de turno")]
     public GameObject indicadorTurno;
+
     [Header("Animaciones")]
     public Animator animator;
     public RuntimeAnimatorController walk;
+
+    [Header("Rotacion")]
+    public float rotationSpeed = 10f;
 
     List<Vector3> path = new List<Vector3>();
     int index = 0;
@@ -75,6 +77,19 @@ public class EnemyScript : MonoBehaviour
     void Mover()
     {
         Vector3 target = path[index];
+
+        // Rotar hacia el destino
+        Vector3 direccion = (target - transform.position).normalized;
+        if (direccion != Vector3.zero)
+        {
+            Quaternion rotacionObjetivo = Quaternion.LookRotation(direccion);
+            transform.rotation = Quaternion.Slerp(
+                transform.rotation,
+                rotacionObjetivo,
+                rotationSpeed * Time.deltaTime
+            );
+        }
+
         transform.position = Vector3.MoveTowards(transform.position, target, speed * Time.deltaTime);
 
         if (Vector3.Distance(transform.position, target) < 0.05f)

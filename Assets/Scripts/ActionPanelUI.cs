@@ -38,7 +38,6 @@ public class ActionPanelUI : MonoBehaviour
         OcultarPanel();
     }
 
-
     public void MostrarPanel(PlayerScript player)
     {
         actionPanel.SetActive(true);
@@ -66,7 +65,6 @@ public class ActionPanelUI : MonoBehaviour
         statusText.text = $"{mov}\n{accion}";
     }
 
-
     void OnMover()
     {
         PlayerScript player = GameManager.Instance.JugadorActual();
@@ -74,6 +72,11 @@ public class ActionPanelUI : MonoBehaviour
 
         statusText.text = "Haz click en el tablero para moverte...";
         btnMover.interactable = false;
+
+        // Pintar rango de movimiento
+        Vector2Int origen = GraphCreator.Instance.WorldToGrid(player.transform.position);
+        GraphCreator.Instance.MostrarRangoMovimiento(origen, player.playerMoveRange);
+
         GameManager.Instance.ActivarModoMovimiento();
     }
 
@@ -97,7 +100,6 @@ public class ActionPanelUI : MonoBehaviour
 
     void OnHabilidad1()
     {
-        // Acelerar: +3 iniciativa al jugador → actúa antes la siguiente ronda
         PlayerScript player = GameManager.Instance.JugadorActual();
         if (player == null || player.yaUsoAccion) return;
 
@@ -110,7 +112,6 @@ public class ActionPanelUI : MonoBehaviour
 
     void OnHabilidad2()
     {
-        // Stun: -5 iniciativa al enemy más cercano → actúa después esta ronda
         PlayerScript player = GameManager.Instance.JugadorActual();
         if (player == null || player.yaUsoAccion) return;
 
@@ -130,7 +131,6 @@ public class ActionPanelUI : MonoBehaviour
 
     void OnDefender()
     {
-        // Defender: +5 iniciativa + daño reducido a la mitad este turno
         PlayerScript player = GameManager.Instance.JugadorActual();
         if (player == null || player.yaUsoAccion) return;
 
@@ -146,8 +146,6 @@ public class ActionPanelUI : MonoBehaviour
     {
         GameManager.Instance.BotonPasarTurno();
     }
-
-
 
     void UsarAccion(PlayerScript player)
     {
@@ -170,7 +168,6 @@ public class ActionPanelUI : MonoBehaviour
             if (d < mejorDist) { mejorDist = d; mejor = e; }
         }
 
-   
         if (mejor != null && mejorDist <= player.rangoAtaque)
             return mejor;
 

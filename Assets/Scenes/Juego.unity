@@ -26,7 +26,7 @@ RenderSettings:
   m_AmbientIntensity: 1
   m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
-  m_SkyboxMaterial: {fileID: 10304, guid: 0000000000000000f000000000000000, type: 0}
+  m_SkyboxMaterial: {fileID: 2100000, guid: d6d8579b0991a0645b5006525e41a46a, type: 2}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -3297,13 +3297,14 @@ MonoBehaviour:
   damage: 50
   health: 100
   rangoAtaque: 1.5
-  playerMoveRange: 3
+  playerMoveRange: 5
   playerStats: Warrior
   iniciativa: 10
   portrait: {fileID: 0}
   indicadorTurno: {fileID: 721231850}
   animator: {fileID: 1221803786}
   walk: {fileID: 9100000, guid: f7fd5f5e080813447a07746805248a83, type: 2}
+  rotationSpeed: 10
   yaSeMovio: 0
   yaUsoAccion: 0
   estaDefendiendo: 0
@@ -3680,6 +3681,7 @@ MonoBehaviour:
   indicadorTurno: {fileID: 0}
   animator: {fileID: 1542084812}
   walk: {fileID: 9100000, guid: b5ee1ba5469615843ad304b54022ab30, type: 2}
+  rotationSpeed: 10
 --- !u!1 &1559746971
 GameObject:
   m_ObjectHideFlags: 0
@@ -4314,6 +4316,7 @@ MonoBehaviour:
   indicadorTurno: {fileID: 688075464}
   animator: {fileID: 1964613981}
   walk: {fileID: 9100000, guid: f7fd5f5e080813447a07746805248a83, type: 2}
+  rotationSpeed: 10
   yaSeMovio: 0
   yaUsoAccion: 0
   estaDefendiendo: 0
