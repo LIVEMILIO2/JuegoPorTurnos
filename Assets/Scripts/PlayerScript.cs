@@ -4,9 +4,10 @@ using UnityEngine;
 public class PlayerScript : MonoBehaviour
 {
     public float speed = 5f;
-    public float altura = 0f;
+    public float altura = 0.5f;
     public float damage = 50f;
     public float health = 100f;
+    [HideInInspector] public float healthMax = 100f;
     public float rangoAtaque = 1.5f;
     public int playerMoveRange = 3;
     public string playerStats = "Warrior";
@@ -25,7 +26,10 @@ public class PlayerScript : MonoBehaviour
     public RuntimeAnimatorController walk;
 
     [Header("Rotacion")]
-    public float rotationSpeed = 10f; // Que tan rapido gira
+    public float rotationSpeed = 10f;
+
+    [Header("Panel de acciones")]
+    public ActionPanelBase panelAcciones;
 
     [HideInInspector] public bool yaSeMovio = false;
     [HideInInspector] public bool yaUsoAccion = false;
@@ -37,6 +41,7 @@ public class PlayerScript : MonoBehaviour
 
     void Start()
     {
+        healthMax = health;
         animator = GetComponent<Animator>();
     }
 
@@ -49,16 +54,11 @@ public class PlayerScript : MonoBehaviour
     {
         Vector3 target = path[index];
 
-        // Rotar hacia el destino antes de moverse
         Vector3 direccion = (target - transform.position).normalized;
         if (direccion != Vector3.zero)
         {
             Quaternion rotacionObjetivo = Quaternion.LookRotation(direccion);
-            transform.rotation = Quaternion.Slerp(
-                transform.rotation,
-                rotacionObjetivo,
-                rotationSpeed * Time.deltaTime
-            );
+            transform.rotation = Quaternion.Slerp(transform.rotation, rotacionObjetivo, rotationSpeed * Time.deltaTime);
         }
 
         transform.position = Vector3.MoveTowards(transform.position, target, speed * Time.deltaTime);
@@ -72,8 +72,9 @@ public class PlayerScript : MonoBehaviour
             {
                 moviendose = false;
                 yaSeMovio = true;
-                ActionPanelUI.Instance?.RefrescarBotones(this);
+                panelAcciones?.RefrescarBotones(this);
 
+                // Si ya usó acción, terminar turno
                 if (yaUsoAccion)
                     GameManager.Instance.SiguienteTurno();
             }
@@ -87,11 +88,11 @@ public class PlayerScript : MonoBehaviour
         index = 0;
         if (path.Count == 0)
         {
-            ActionPanelUI.Instance?.RefrescarBotones(this);
+            panelAcciones?.RefrescarBotones(this);
             return;
         }
         moviendose = true;
-        animator.runtimeAnimatorController = walk;
+        if (animator != null) animator.runtimeAnimatorController = walk;
     }
 
     public void ReiniciarTurno()
@@ -99,8 +100,21 @@ public class PlayerScript : MonoBehaviour
         yaSeMovio = false;
         yaUsoAccion = false;
         estaDefendiendo = false;
+
         if (indicadorTurno != null) indicadorTurno.SetActive(true);
-        ActionPanelUI.Instance?.MostrarPanel(this);
+
+        // Ocultar paneles de todos los demás players
+        foreach (var p in GameManager.Instance.players)
+            if (p != null && p != this && p.panelAcciones != null)
+                p.panelAcciones.OcultarPanel();
+
+        // Mostrar el propio
+        panelAcciones?.MostrarPanel(this);
+    }
+
+    public void OcultarPanel()
+    {
+        panelAcciones?.OcultarPanel();
     }
 
     public bool EsMiTurno() => GameManager.Instance.JugadorActual() == this;
@@ -117,7 +131,7 @@ public class PlayerScript : MonoBehaviour
     void Die()
     {
         Debug.Log($"{name} ha muerto.");
-        ActionPanelUI.Instance?.OcultarPanel();
+        panelAcciones?.OcultarPanel();
         GameManager.Instance?.RemovePlayer(this);
         Destroy(gameObject);
     }

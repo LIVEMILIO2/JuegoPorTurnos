@@ -1872,6 +1872,7 @@ GameObject:
   - component: {fileID: 500530749}
   - component: {fileID: 500530752}
   - component: {fileID: 500530751}
+  - component: {fileID: 500530753}
   m_Layer: 0
   m_Name: GameObject
   m_TagString: Untagged
@@ -1886,7 +1887,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 500530748}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 70ad8adac8e450e40bcbcdc319d4d65d, type: 3}
   m_Name: 
@@ -1951,6 +1952,27 @@ MonoBehaviour:
   btnHabilidad1: {fileID: 1368615632}
   btnPasarTurno: {fileID: 76992968}
   statusText: {fileID: 1124814656}
+--- !u!114 &500530753
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 500530748}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a54235e326fd5143bc15c8985f13d75, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ActionPanelUISupport
+  actionPanel: {fileID: 1802999001}
+  btnMover: {fileID: 1972191537}
+  btnAtacar: {fileID: 1476812002}
+  btnHabilidad1: {fileID: 851424619}
+  btnHabilidad2: {fileID: 728170587}
+  btnPasarTurno: {fileID: 76992968}
+  statusText: {fileID: 1124814656}
+  rangoHabilidad: 2
+  cantidadCura: 30
 --- !u!1001 &527896060
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4473,6 +4495,7 @@ MonoBehaviour:
   altura: 0
   damage: 50
   health: 100
+  healthMax: 100
   rangoAtaque: 1.5
   playerMoveRange: 5
   playerStats: Warrior
@@ -4482,6 +4505,7 @@ MonoBehaviour:
   animator: {fileID: 1221803786}
   walk: {fileID: 9100000, guid: f7fd5f5e080813447a07746805248a83, type: 2}
   rotationSpeed: 10
+  panelAcciones: {fileID: 1459725241}
   yaSeMovio: 0
   yaUsoAccion: 0
   estaDefendiendo: 0
@@ -6421,6 +6445,7 @@ MonoBehaviour:
   altura: 0
   damage: 50
   health: 100
+  healthMax: 100
   rangoAtaque: 1.5
   playerMoveRange: 3
   playerStats: Warrior
@@ -6430,6 +6455,7 @@ MonoBehaviour:
   animator: {fileID: 1964613981}
   walk: {fileID: 9100000, guid: f7fd5f5e080813447a07746805248a83, type: 2}
   rotationSpeed: 10
+  panelAcciones: {fileID: 1459725241}
   yaSeMovio: 0
   yaUsoAccion: 0
   estaDefendiendo: 0

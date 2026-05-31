@@ -2,7 +2,7 @@
 using UnityEngine.UI;
 using TMPro;
 
-public class ActionPanelUIWarrior : ActionPanelBase
+public class ActionPanelUISupport : ActionPanelBase
 {
     [Header("Panel raíz")]
     public GameObject actionPanel;
@@ -10,20 +10,25 @@ public class ActionPanelUIWarrior : ActionPanelBase
     [Header("Botones")]
     public Button btnMover;
     public Button btnAtacar;
-    public Button btnHabilidad1; // Acelerar: +3 iniciativa
-    public Button btnDefender;
+    public Button btnHabilidad1; // Curar: restaura vida a un player cercano
+    public Button btnHabilidad2; // Buff: +3 iniciativa a un player cercano
     public Button btnPasarTurno;
 
     [Header("Texto de estado")]
     public TMP_Text statusText;
 
+    [Header("Rango de habilidades")]
+    public float rangoHabilidad = 2f;
+    public float cantidadCura = 30f;
+
     void Start()
     {
         btnMover.onClick.AddListener(OnMover);
         btnAtacar.onClick.AddListener(OnAtacar);
-        btnHabilidad1.onClick.AddListener(OnAcelerar);
-        btnDefender.onClick.AddListener(OnDefender);
+        btnHabilidad1.onClick.AddListener(OnCurar);
+        btnHabilidad2.onClick.AddListener(OnBuff);
         btnPasarTurno.onClick.AddListener(OnPasarTurno);
+
         OcultarPanel();
     }
 
@@ -45,7 +50,7 @@ public class ActionPanelUIWarrior : ActionPanelBase
         btnMover.interactable = !player.yaSeMovio && !player.EstaMoviendose();
         btnAtacar.interactable = !player.yaUsoAccion;
         btnHabilidad1.interactable = !player.yaUsoAccion;
-        btnDefender.interactable = !player.yaUsoAccion;
+        btnHabilidad2.interactable = !player.yaUsoAccion;
         btnPasarTurno.interactable = true;
 
         string mov = player.yaSeMovio ? "<color=grey>Movimiento ✓</color>" : "<color=white>Movimiento disponible</color>";
@@ -57,8 +62,10 @@ public class ActionPanelUIWarrior : ActionPanelBase
     {
         PlayerScript player = GameManager.Instance.JugadorActual();
         if (player == null) return;
+
         statusText.text = "Haz click en el tablero para moverte...";
         btnMover.interactable = false;
+
         Vector2Int origen = GraphCreator.Instance.WorldToGrid(player.transform.position);
         GraphCreator.Instance.MostrarRangoMovimiento(origen, player.playerMoveRange);
         GameManager.Instance.ActivarModoMovimiento();
@@ -68,30 +75,40 @@ public class ActionPanelUIWarrior : ActionPanelBase
     {
         PlayerScript player = GameManager.Instance.JugadorActual();
         if (player == null || player.yaUsoAccion) return;
+
         EnemyScript objetivo = EnemyMasCercano(player);
         if (objetivo == null) { statusText.text = "No hay enemigos en rango."; return; }
+
         objetivo.RecibirDamage(player.damage);
         UsarAccion(player);
     }
 
-    void OnAcelerar()
+    void OnCurar()
     {
+        // Curar: restaura vida al ally más cercano con menos vida
         PlayerScript player = GameManager.Instance.JugadorActual();
         if (player == null || player.yaUsoAccion) return;
-        GameManager.Instance.ModificarIniciativa(player, player.iniciativa + 3);
-        GameManager.Instance.ReconstruirColaActual();
-        Debug.Log($"{player.playerStats} usa Acelerar: iniciativa ahora {player.iniciativa}");
+
+        PlayerScript objetivo = AllyMasCercano(player);
+        if (objetivo == null) { statusText.text = "No hay allies en rango."; return; }
+
+        objetivo.health = Mathf.Min(objetivo.health + cantidadCura, objetivo.healthMax);
+        Debug.Log($"Support cura a {objetivo.name} por {cantidadCura}. Vida: {objetivo.health}");
         UsarAccion(player);
     }
 
-    void OnDefender()
+    void OnBuff()
     {
+        // Buff: +3 iniciativa al ally más cercano
         PlayerScript player = GameManager.Instance.JugadorActual();
         if (player == null || player.yaUsoAccion) return;
-        GameManager.Instance.ModificarIniciativa(player, player.iniciativa + 5);
+
+        PlayerScript objetivo = AllyMasCercano(player);
+        if (objetivo == null) { statusText.text = "No hay allies en rango."; return; }
+
+        GameManager.Instance.ModificarIniciativa(objetivo, objetivo.iniciativa + 3);
         GameManager.Instance.ReconstruirColaActual();
-        player.estaDefendiendo = true;
-        Debug.Log($"{player.playerStats} se defiende");
+        Debug.Log($"Support buffea a {objetivo.name}: iniciativa ahora {objetivo.iniciativa}");
         UsarAccion(player);
     }
 
@@ -101,20 +118,35 @@ public class ActionPanelUIWarrior : ActionPanelBase
     {
         player.yaUsoAccion = true;
         RefrescarBotones(player);
-        GameManager.Instance.SiguienteTurno(); // Siempre pasar turno al usar acción
-        Debug.Log($"UsarAccion - yaSeMovio:{player.yaSeMovio}");
+        if (player.yaSeMovio) GameManager.Instance.SiguienteTurno();
+    }
+
+    PlayerScript AllyMasCercano(PlayerScript self)
+    {
+        PlayerScript mejor = null;
+        float mejorDist = Mathf.Infinity;
+
+        foreach (var p in GameManager.Instance.players)
+        {
+            if (p == null || p == self) continue;
+            float d = Vector3.Distance(self.transform.position, p.transform.position);
+            if (d <= rangoHabilidad && d < mejorDist) { mejorDist = d; mejor = p; }
+        }
+        return mejor;
     }
 
     EnemyScript EnemyMasCercano(PlayerScript player)
     {
         EnemyScript mejor = null;
         float mejorDist = Mathf.Infinity;
+
         foreach (var e in GameManager.Instance.enemies)
         {
             if (e == null) continue;
             float d = Vector3.Distance(player.transform.position, e.transform.position);
             if (d < mejorDist) { mejorDist = d; mejor = e; }
         }
+
         return mejor != null && mejorDist <= player.rangoAtaque ? mejor : null;
     }
 }

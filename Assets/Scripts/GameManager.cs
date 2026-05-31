@@ -21,7 +21,12 @@ public class GameManager : MonoBehaviour
     private PriorityQueue<MonoBehaviour> turnQueue = new PriorityQueue<MonoBehaviour>();
     private bool modoMovimiento = false;
 
-    // Lista ordenada para la barra de turnos
+    // Frames que han pasado desde que el enemy inició su turno
+    // -1 = no es turno de enemy
+    // 0  = primer frame, aún no verificar
+    // >0 = ya puede verificar Moving()
+    private int framesTurnoEnemy = -1;
+
     private List<TurnEntry> ordenActual = new List<TurnEntry>();
 
     void Awake()
@@ -38,6 +43,20 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
+        if (framesTurnoEnemy >= 0)
+        {
+            framesTurnoEnemy++;
+
+            // Esperar al menos 2 frames antes de verificar
+            if (framesTurnoEnemy >= 2 && enemyActual != null && !enemyActual.Moving())
+            {
+                framesTurnoEnemy = -1;
+                enemyActual.IntentarAtacar();
+                TerminarTurno();
+                return;
+            }
+        }
+
         if (playerActual != null && !playerActual.EstaMoviendose() && modoMovimiento)
             DetectarClickMovimiento();
     }
@@ -52,76 +71,24 @@ public class GameManager : MonoBehaviour
     void ConstruirCola()
     {
         turnQueue = new PriorityQueue<MonoBehaviour>();
-
-        foreach (var p in players)
-            if (p != null) turnQueue.Enqueue(p, -p.iniciativa);
-
-        foreach (var e in enemies)
-            if (e != null) turnQueue.Enqueue(e, -e.iniciativa);
+        foreach (var p in players) if (p != null) turnQueue.Enqueue(p, -p.iniciativa);
+        foreach (var e in enemies) if (e != null) turnQueue.Enqueue(e, -e.iniciativa);
     }
+
     void RefrescarOrdenBarra()
     {
-        // Reconstruimos una lista ordenada por iniciativa descendente
         ordenActual.Clear();
-
-        List<PlayerScript> ps = new List<PlayerScript>(players);
-        List<EnemyScript> es = new List<EnemyScript>(enemies);
-
-        // Unir todos y ordenar por iniciativa descendente
-        List<(MonoBehaviour mb, int ini, bool esPlayer)> todos = new List<(MonoBehaviour, int, bool)>();
-
-        foreach (var p in ps) if (p != null) todos.Add((p, p.iniciativa, true));
-        foreach (var e in es) if (e != null) todos.Add((e, e.iniciativa, false));
-
+        var todos = new List<(MonoBehaviour mb, int ini, bool esPlayer)>();
+        foreach (var p in players) if (p != null) todos.Add((p, p.iniciativa, true));
+        foreach (var e in enemies) if (e != null) todos.Add((e, e.iniciativa, false));
         todos.Sort((a, b) => b.ini.CompareTo(a.ini));
-
         foreach (var t in todos)
         {
-            Sprite spr = t.esPlayer
-                ? ((PlayerScript)t.mb).portrait
-                : ((EnemyScript)t.mb).portrait;
-
-            ordenActual.Add(new TurnEntry
-            {
-                entidad = t.mb,
-                portrait = spr,
-                esPlayer = t.esPlayer
-            });
+            Sprite spr = t.esPlayer ? ((PlayerScript)t.mb).portrait : ((EnemyScript)t.mb).portrait;
+            ordenActual.Add(new TurnEntry { entidad = t.mb, portrait = spr, esPlayer = t.esPlayer });
         }
-
         MonoBehaviour activo = (MonoBehaviour)playerActual ?? enemyActual;
         TurnBarUI.Instance?.Refrescar(ordenActual, activo);
-    }
-
-    public void SiguienteTurno()
-    {
-        // Evitar que se llame mientras un enemy todavía se está moviendo
-        if (enemyActual != null && enemyActual.Moving()) return;
-
-        modoMovimiento = false;
-        playerActual = null;
-        enemyActual = null;
-        ActionPanelUI.Instance?.OcultarPanel();
-        GraphCreator.Instance?.ResetVisual();
-
-        if (turnQueue.IsEmpty())
-        {
-            InicializarRonda();
-            return;
-        }
-
-        ActivarSiguiente();
-    }
-
-    void ApagarIndicadores()
-    {
-        foreach (var p in players)
-            if (p != null && p.indicadorTurno != null)
-                p.indicadorTurno.SetActive(false);
-
-        foreach (var e in enemies)
-            if (e != null && e.indicadorTurno != null)
-                e.indicadorTurno.SetActive(false);
     }
 
     void ActivarSiguiente()
@@ -136,6 +103,7 @@ public class GameManager : MonoBehaviour
             if (next is PlayerScript p)
             {
                 playerActual = p;
+                framesTurnoEnemy = -1;
                 ActualizarUI();
                 RefrescarOrdenBarra();
                 p.ReiniciarTurno();
@@ -145,9 +113,10 @@ public class GameManager : MonoBehaviour
             if (next is EnemyScript e)
             {
                 enemyActual = e;
+                framesTurnoEnemy = 0; // Empezar contador
                 ActualizarUI();
                 RefrescarOrdenBarra();
-                e.TomarTurno();
+                e.IniciarTurno();
                 return;
             }
         }
@@ -155,44 +124,54 @@ public class GameManager : MonoBehaviour
         InicializarRonda();
     }
 
-    public void ModificarIniciativa(PlayerScript player, int nuevaIniciativa)
+    void ApagarIndicadores()
     {
-        player.iniciativa = nuevaIniciativa;
+        foreach (var p in players) if (p != null && p.indicadorTurno != null) p.indicadorTurno.SetActive(false);
+        foreach (var e in enemies) if (e != null && e.indicadorTurno != null) e.indicadorTurno.SetActive(false);
     }
 
-    public void ModificarIniciativa(EnemyScript enemy, int nuevaIniciativa)
+    public void SiguienteTurno() => TerminarTurno();
+
+    void TerminarTurno()
     {
-        enemy.iniciativa = nuevaIniciativa;
+        framesTurnoEnemy = -1;
+        modoMovimiento = false;
+        playerActual?.OcultarPanel();
+        playerActual = null;
+        enemyActual = null;
+        GraphCreator.Instance?.ResetVisual();
+
+        if (turnQueue.IsEmpty())
+        {
+            InicializarRonda();
+            return;
+        }
+
+        ActivarSiguiente();
     }
+
+    public void ModificarIniciativa(PlayerScript player, int nuevaIniciativa) => player.iniciativa = nuevaIniciativa;
+    public void ModificarIniciativa(EnemyScript enemy, int nuevaIniciativa) => enemy.iniciativa = nuevaIniciativa;
 
     public void ReconstruirColaActual()
     {
-        List<MonoBehaviour> restantes = new List<MonoBehaviour>();
-        while (!turnQueue.IsEmpty())
-            restantes.Add(turnQueue.Dequeue());
-
+        var restantes = new List<MonoBehaviour>();
+        while (!turnQueue.IsEmpty()) restantes.Add(turnQueue.Dequeue());
         turnQueue = new PriorityQueue<MonoBehaviour>();
-
         foreach (var entity in restantes)
         {
-            if (entity is PlayerScript p && p != null)
-                turnQueue.Enqueue(p, -p.iniciativa);
-            else if (entity is EnemyScript e && e != null)
-                turnQueue.Enqueue(e, -e.iniciativa);
+            if (entity is PlayerScript p && p != null) turnQueue.Enqueue(p, -p.iniciativa);
+            else if (entity is EnemyScript e && e != null) turnQueue.Enqueue(e, -e.iniciativa);
         }
-
         RefrescarOrdenBarra();
     }
-    public void ActivarModoMovimiento()
-    {
-        modoMovimiento = true;
-    }
+
+    public void ActivarModoMovimiento() => modoMovimiento = true;
 
     void DetectarClickMovimiento()
     {
         if (!Input.GetMouseButtonDown(0)) return;
         if (playerActual == null) return;
-
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(ray, out RaycastHit hit))
         {
@@ -214,35 +193,31 @@ public class GameManager : MonoBehaviour
         {
             nombreText.text = playerActual.playerStats;
             vidaText.text = "Vida: " + playerActual.health;
-            movimientoText.text = "Movimiento:" + playerActual.playerMoveRange;
+            movimientoText.text = "Movimiento: " + playerActual.playerMoveRange;
             ataqueText.text = "Ataque: " + playerActual.damage;
         }
         else if (enemyActual != null)
         {
             nombreText.text = "Enemy";
             vidaText.text = "Vida: " + enemyActual.currentHealth;
-            movimientoText.text = "Movimiento:" + enemyActual.enemyMoveRange;
+            movimientoText.text = "Movimiento: " + enemyActual.enemyMoveRange;
             ataqueText.text = "Ataque: " + enemyActual.damage;
         }
     }
 
-    public void BotonPasarTurno()
-    {
-        SiguienteTurno();
-    }
+    public void BotonPasarTurno() => TerminarTurno();
 
     public void RemoveEnemy(EnemyScript enemy)
     {
         enemies.Remove(enemy);
         RefrescarOrdenBarra();
-
         if (enemies.Count == 0)
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
-
         if (enemyActual == enemy)
         {
+            framesTurnoEnemy = -1;
             enemyActual = null;
-            SiguienteTurno();
+            TerminarTurno();
         }
     }
 
@@ -250,17 +225,7 @@ public class GameManager : MonoBehaviour
     {
         players.Remove(player);
         RefrescarOrdenBarra();
-
-        if (players.Count == 0)
-        {
-            SceneManager.LoadScene("GameOver");
-            return;
-        }
-
-        if (playerActual == player)
-        {
-            playerActual = null;
-            SiguienteTurno();
-        }
+        if (players.Count == 0) { SceneManager.LoadScene("GameOver"); return; }
+        if (playerActual == player) { playerActual = null; TerminarTurno(); }
     }
 }

@@ -42,16 +42,13 @@ public class EnemyScript : MonoBehaviour
         if (moving) Mover();
     }
 
-    public void TomarTurno()
+    // Llamado por GameManager — solo mueve, NO llama SiguienteTurno
+    public void IniciarTurno()
     {
         if (indicadorTurno != null) indicadorTurno.SetActive(true);
 
         objetivoActual = ObtenerObjetivo();
-        if (objetivoActual == null)
-        {
-            GameManager.Instance.SiguienteTurno();
-            return;
-        }
+        if (objetivoActual == null) return; // GameManager detecta Moving()=false y termina turno
 
         Vector2Int start = GraphCreator.Instance.WorldToGrid(transform.position);
         Vector2Int goal = GraphCreator.Instance.WorldToGrid(objetivoActual.transform.position);
@@ -62,32 +59,20 @@ public class EnemyScript : MonoBehaviour
     {
         path = nuevoPath;
         index = 0;
-
-        if (path.Count == 0)
-        {
-            IntentarAtacar();
-            GameManager.Instance.SiguienteTurno();
-            return;
-        }
-
+        if (path.Count == 0) return; // GameManager detecta Moving()=false y termina turno
         moving = true;
-        animator.runtimeAnimatorController = walk;
+        if (animator != null) animator.runtimeAnimatorController = walk;
     }
 
     void Mover()
     {
         Vector3 target = path[index];
 
-        // Rotar hacia el destino
         Vector3 direccion = (target - transform.position).normalized;
         if (direccion != Vector3.zero)
         {
             Quaternion rotacionObjetivo = Quaternion.LookRotation(direccion);
-            transform.rotation = Quaternion.Slerp(
-                transform.rotation,
-                rotacionObjetivo,
-                rotationSpeed * Time.deltaTime
-            );
+            transform.rotation = Quaternion.Slerp(transform.rotation, rotacionObjetivo, rotationSpeed * Time.deltaTime);
         }
 
         transform.position = Vector3.MoveTowards(transform.position, target, speed * Time.deltaTime);
@@ -96,17 +81,13 @@ public class EnemyScript : MonoBehaviour
         {
             transform.position = target;
             index++;
-
             if (index >= path.Count)
-            {
-                moving = false;
-                IntentarAtacar();
-                GameManager.Instance.SiguienteTurno();
-            }
+                moving = false; // GameManager detecta esto en Update y termina turno
         }
     }
 
-    void IntentarAtacar()
+    // Llamado por GameManager cuando detecta que el enemy terminó de moverse
+    public void IntentarAtacar()
     {
         if (objetivoActual == null) return;
         float distancia = Vector3.Distance(transform.position, objetivoActual.transform.position);
@@ -118,7 +99,6 @@ public class EnemyScript : MonoBehaviour
     {
         PlayerScript objetivo = null;
         float mejorDistancia = Mathf.Infinity;
-
         foreach (var player in GameManager.Instance.players)
         {
             float d = Vector3.Distance(transform.position, player.transform.position);
