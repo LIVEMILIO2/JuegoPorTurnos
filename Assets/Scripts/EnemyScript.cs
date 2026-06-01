@@ -42,13 +42,16 @@ public class EnemyScript : MonoBehaviour
         if (moving) Mover();
     }
 
-    // Llamado por GameManager — solo mueve, NO llama SiguienteTurno
-    public void IniciarTurno()
+    public void TomarTurno()
     {
         if (indicadorTurno != null) indicadorTurno.SetActive(true);
 
         objetivoActual = ObtenerObjetivo();
-        if (objetivoActual == null) return; // GameManager detecta Moving()=false y termina turno
+        if (objetivoActual == null)
+        {
+            GameManager.Instance.SiguienteTurno();
+            return;
+        }
 
         Vector2Int start = GraphCreator.Instance.WorldToGrid(transform.position);
         Vector2Int goal = GraphCreator.Instance.WorldToGrid(objetivoActual.transform.position);
@@ -59,7 +62,14 @@ public class EnemyScript : MonoBehaviour
     {
         path = nuevoPath;
         index = 0;
-        if (path.Count == 0) return; // GameManager detecta Moving()=false y termina turno
+
+        if (path.Count == 0)
+        {
+            IntentarAtacar();
+            GameManager.Instance.SiguienteTurno();
+            return;
+        }
+
         moving = true;
         if (animator != null) animator.runtimeAnimatorController = walk;
     }
@@ -81,13 +91,17 @@ public class EnemyScript : MonoBehaviour
         {
             transform.position = target;
             index++;
+
             if (index >= path.Count)
-                moving = false; // GameManager detecta esto en Update y termina turno
+            {
+                moving = false;
+                IntentarAtacar();
+                GameManager.Instance.SiguienteTurno();
+            }
         }
     }
 
-    // Llamado por GameManager cuando detecta que el enemy terminó de moverse
-    public void IntentarAtacar()
+    void IntentarAtacar()
     {
         if (objetivoActual == null) return;
         float distancia = Vector3.Distance(transform.position, objetivoActual.transform.position);

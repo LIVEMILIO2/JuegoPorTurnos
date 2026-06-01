@@ -75,7 +75,7 @@ public class PlayerScript : MonoBehaviour
                 panelAcciones?.RefrescarBotones(this);
 
                 // Si ya usó acción, terminar turno
-                if (yaUsoAccion)
+                if (yaUsoAccion && GameManager.Instance.JugadorActual() == this)
                     GameManager.Instance.SiguienteTurno();
             }
         }

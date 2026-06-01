@@ -2,6 +2,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// Barra de turnos vertical en Canvas, sin sprites.
+/// 
+/// Setup:
+/// 1. Crea un Panel vertical en el Canvas (ancho ~70px, alto toda la pantalla)
+///    Agrégale Vertical Layout Group (spacing 5, child force expand desactivado)
+///    y Content Size Fitter (vertical: Preferred Size)
+/// 2. Agrégale este script
+/// 3. Crea el prefab TurnSlot (ver TurnSlot.cs)
+/// </summary>
 public class TurnBarUI : MonoBehaviour
 {
     public static TurnBarUI Instance;

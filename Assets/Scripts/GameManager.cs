@@ -21,12 +21,6 @@ public class GameManager : MonoBehaviour
     private PriorityQueue<MonoBehaviour> turnQueue = new PriorityQueue<MonoBehaviour>();
     private bool modoMovimiento = false;
 
-    // Frames que han pasado desde que el enemy inició su turno
-    // -1 = no es turno de enemy
-    // 0  = primer frame, aún no verificar
-    // >0 = ya puede verificar Moving()
-    private int framesTurnoEnemy = -1;
-
     private List<TurnEntry> ordenActual = new List<TurnEntry>();
 
     void Awake()
@@ -43,20 +37,6 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
-        if (framesTurnoEnemy >= 0)
-        {
-            framesTurnoEnemy++;
-
-            // Esperar al menos 2 frames antes de verificar
-            if (framesTurnoEnemy >= 2 && enemyActual != null && !enemyActual.Moving())
-            {
-                framesTurnoEnemy = -1;
-                enemyActual.IntentarAtacar();
-                TerminarTurno();
-                return;
-            }
-        }
-
         if (playerActual != null && !playerActual.EstaMoviendose() && modoMovimiento)
             DetectarClickMovimiento();
     }
@@ -71,8 +51,12 @@ public class GameManager : MonoBehaviour
     void ConstruirCola()
     {
         turnQueue = new PriorityQueue<MonoBehaviour>();
-        foreach (var p in players) if (p != null) turnQueue.Enqueue(p, -p.iniciativa);
-        foreach (var e in enemies) if (e != null) turnQueue.Enqueue(e, -e.iniciativa);
+
+        foreach (var p in players)
+            if (p != null) turnQueue.Enqueue(p, -p.iniciativa);
+
+        foreach (var e in enemies)
+            if (e != null) turnQueue.Enqueue(e, -e.iniciativa);
     }
 
     void RefrescarOrdenBarra()
@@ -91,50 +75,12 @@ public class GameManager : MonoBehaviour
         TurnBarUI.Instance?.Refrescar(ordenActual, activo);
     }
 
-    void ActivarSiguiente()
+    public void SiguienteTurno()
     {
-        ApagarIndicadores();
+        Debug.Log("SiguienteTurno - caller: " + new System.Diagnostics.StackFrame(1, true).GetMethod().Name);
+        if (enemyActual != null && enemyActual.Moving()) return;
+        if (playerActual != null && playerActual.EstaMoviendose()) return;
 
-        while (!turnQueue.IsEmpty())
-        {
-            MonoBehaviour next = turnQueue.Dequeue();
-            if (next == null) continue;
-
-            if (next is PlayerScript p)
-            {
-                playerActual = p;
-                framesTurnoEnemy = -1;
-                ActualizarUI();
-                RefrescarOrdenBarra();
-                p.ReiniciarTurno();
-                return;
-            }
-
-            if (next is EnemyScript e)
-            {
-                enemyActual = e;
-                framesTurnoEnemy = 0; // Empezar contador
-                ActualizarUI();
-                RefrescarOrdenBarra();
-                e.IniciarTurno();
-                return;
-            }
-        }
-
-        InicializarRonda();
-    }
-
-    void ApagarIndicadores()
-    {
-        foreach (var p in players) if (p != null && p.indicadorTurno != null) p.indicadorTurno.SetActive(false);
-        foreach (var e in enemies) if (e != null && e.indicadorTurno != null) e.indicadorTurno.SetActive(false);
-    }
-
-    public void SiguienteTurno() => TerminarTurno();
-
-    void TerminarTurno()
-    {
-        framesTurnoEnemy = -1;
         modoMovimiento = false;
         playerActual?.OcultarPanel();
         playerActual = null;
@@ -148,6 +94,43 @@ public class GameManager : MonoBehaviour
         }
 
         ActivarSiguiente();
+    }
+
+    void ActivarSiguiente()
+    {
+        ApagarIndicadores();
+
+        while (!turnQueue.IsEmpty())
+        {
+            MonoBehaviour next = turnQueue.Dequeue();
+            if (next == null) continue;
+
+            if (next is PlayerScript p)
+            {
+                playerActual = p;
+                ActualizarUI();
+                RefrescarOrdenBarra();
+                p.ReiniciarTurno();
+                return;
+            }
+
+            if (next is EnemyScript e)
+            {
+                enemyActual = e;
+                ActualizarUI();
+                RefrescarOrdenBarra();
+                e.TomarTurno();
+                return;
+            }
+        }
+
+        InicializarRonda();
+    }
+
+    void ApagarIndicadores()
+    {
+        foreach (var p in players) if (p != null && p.indicadorTurno != null) p.indicadorTurno.SetActive(false);
+        foreach (var e in enemies) if (e != null && e.indicadorTurno != null) e.indicadorTurno.SetActive(false);
     }
 
     public void ModificarIniciativa(PlayerScript player, int nuevaIniciativa) => player.iniciativa = nuevaIniciativa;
@@ -172,6 +155,7 @@ public class GameManager : MonoBehaviour
     {
         if (!Input.GetMouseButtonDown(0)) return;
         if (playerActual == null) return;
+
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(ray, out RaycastHit hit))
         {
@@ -205,19 +189,24 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void BotonPasarTurno() => TerminarTurno();
+    public void BotonPasarTurno()
+    {
+        // Cada panel maneja su propio pasar turno
+        // Este método queda vacío intencionalmente
+    }
 
     public void RemoveEnemy(EnemyScript enemy)
     {
         enemies.Remove(enemy);
         RefrescarOrdenBarra();
+
         if (enemies.Count == 0)
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+
         if (enemyActual == enemy)
         {
-            framesTurnoEnemy = -1;
             enemyActual = null;
-            TerminarTurno();
+            SiguienteTurno();
         }
     }
 
@@ -225,7 +214,13 @@ public class GameManager : MonoBehaviour
     {
         players.Remove(player);
         RefrescarOrdenBarra();
+
         if (players.Count == 0) { SceneManager.LoadScene("GameOver"); return; }
-        if (playerActual == player) { playerActual = null; TerminarTurno(); }
+
+        if (playerActual == player)
+        {
+            playerActual = null;
+            SiguienteTurno();
+        }
     }
 }

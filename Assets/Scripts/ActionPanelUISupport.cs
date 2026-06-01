@@ -10,8 +10,8 @@ public class ActionPanelUISupport : ActionPanelBase
     [Header("Botones")]
     public Button btnMover;
     public Button btnAtacar;
-    public Button btnHabilidad1; // Curar: restaura vida a un player cercano
-    public Button btnHabilidad2; // Buff: +3 iniciativa a un player cercano
+    public Button btnHabilidad1;
+    public Button btnHabilidad2;
     public Button btnPasarTurno;
 
     [Header("Texto de estado")]
@@ -21,8 +21,16 @@ public class ActionPanelUISupport : ActionPanelBase
     public float rangoHabilidad = 2f;
     public float cantidadCura = 30f;
 
+    private PlayerScript miPlayer;
+
     void Start()
     {
+        btnMover.onClick.RemoveAllListeners();
+        btnAtacar.onClick.RemoveAllListeners();
+        btnHabilidad1.onClick.RemoveAllListeners();
+        btnHabilidad2.onClick.RemoveAllListeners();
+        btnPasarTurno.onClick.RemoveAllListeners();
+
         btnMover.onClick.AddListener(OnMover);
         btnAtacar.onClick.AddListener(OnAtacar);
         btnHabilidad1.onClick.AddListener(OnCurar);
@@ -34,12 +42,14 @@ public class ActionPanelUISupport : ActionPanelBase
 
     public override void MostrarPanel(PlayerScript player)
     {
+        miPlayer = player;
         actionPanel.SetActive(true);
         RefrescarBotones(player);
     }
 
     public override void OcultarPanel()
     {
+        miPlayer = null;
         actionPanel.SetActive(false);
     }
 
@@ -58,9 +68,15 @@ public class ActionPanelUISupport : ActionPanelBase
         statusText.text = $"{mov}\n{accion}";
     }
 
+    PlayerScript GetPlayer()
+    {
+        PlayerScript fromManager = GameManager.Instance.JugadorActual();
+        return fromManager != null ? fromManager : miPlayer;
+    }
+
     void OnMover()
     {
-        PlayerScript player = GameManager.Instance.JugadorActual();
+        PlayerScript player = GetPlayer();
         if (player == null) return;
 
         statusText.text = "Haz click en el tablero para moverte...";
@@ -73,7 +89,7 @@ public class ActionPanelUISupport : ActionPanelBase
 
     void OnAtacar()
     {
-        PlayerScript player = GameManager.Instance.JugadorActual();
+        PlayerScript player = GetPlayer();
         if (player == null || player.yaUsoAccion) return;
 
         EnemyScript objetivo = EnemyMasCercano(player);
@@ -85,8 +101,7 @@ public class ActionPanelUISupport : ActionPanelBase
 
     void OnCurar()
     {
-        // Curar: restaura vida al ally más cercano con menos vida
-        PlayerScript player = GameManager.Instance.JugadorActual();
+        PlayerScript player = GetPlayer();
         if (player == null || player.yaUsoAccion) return;
 
         PlayerScript objetivo = AllyMasCercano(player);
@@ -99,8 +114,7 @@ public class ActionPanelUISupport : ActionPanelBase
 
     void OnBuff()
     {
-        // Buff: +3 iniciativa al ally más cercano
-        PlayerScript player = GameManager.Instance.JugadorActual();
+        PlayerScript player = GetPlayer();
         if (player == null || player.yaUsoAccion) return;
 
         PlayerScript objetivo = AllyMasCercano(player);
@@ -112,13 +126,19 @@ public class ActionPanelUISupport : ActionPanelBase
         UsarAccion(player);
     }
 
-    void OnPasarTurno() => GameManager.Instance.BotonPasarTurno();
+    void OnPasarTurno()
+    {
+        PlayerScript player = GetPlayer();
+        if (player == null) return;
+        UsarAccion(player);
+    }
 
     void UsarAccion(PlayerScript player)
     {
         player.yaUsoAccion = true;
+        player.yaSeMovio = true;
         RefrescarBotones(player);
-        if (player.yaSeMovio) GameManager.Instance.SiguienteTurno();
+        GameManager.Instance.SiguienteTurno();
     }
 
     PlayerScript AllyMasCercano(PlayerScript self)

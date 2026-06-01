@@ -16,8 +16,15 @@ public class ActionPanelUIMage : ActionPanelBase
     [Header("Texto de estado")]
     public TMP_Text statusText;
 
+    private PlayerScript miPlayer;
+
     void Start()
     {
+        btnMover.onClick.RemoveAllListeners();
+        btnAtacar.onClick.RemoveAllListeners();
+        btnHabilidad1.onClick.RemoveAllListeners();
+        btnPasarTurno.onClick.RemoveAllListeners();
+
         btnMover.onClick.AddListener(OnMover);
         btnAtacar.onClick.AddListener(OnAtacar);
         btnHabilidad1.onClick.AddListener(OnHabilidad1);
@@ -28,12 +35,14 @@ public class ActionPanelUIMage : ActionPanelBase
 
     public override void MostrarPanel(PlayerScript player)
     {
+        miPlayer = player;
         actionPanel.SetActive(true);
         RefrescarBotones(player);
     }
 
     public override void OcultarPanel()
     {
+        miPlayer = null;
         actionPanel.SetActive(false);
     }
 
@@ -51,9 +60,15 @@ public class ActionPanelUIMage : ActionPanelBase
         statusText.text = $"{mov}\n{accion}";
     }
 
+    PlayerScript GetPlayer()
+    {
+        PlayerScript fromManager = GameManager.Instance.JugadorActual();
+        return fromManager != null ? fromManager : miPlayer;
+    }
+
     void OnMover()
     {
-        PlayerScript player = GameManager.Instance.JugadorActual();
+        PlayerScript player = GetPlayer();
         if (player == null) return;
 
         statusText.text = "Haz click en el tablero para moverte...";
@@ -66,7 +81,7 @@ public class ActionPanelUIMage : ActionPanelBase
 
     void OnAtacar()
     {
-        PlayerScript player = GameManager.Instance.JugadorActual();
+        PlayerScript player = GetPlayer();
         if (player == null || player.yaUsoAccion) return;
 
         EnemyScript objetivo = EnemyMasCercano(player);
@@ -78,8 +93,7 @@ public class ActionPanelUIMage : ActionPanelBase
 
     void OnHabilidad1()
     {
-        // Stun: -5 iniciativa al enemy más cercano
-        PlayerScript player = GameManager.Instance.JugadorActual();
+        PlayerScript player = GetPlayer();
         if (player == null || player.yaUsoAccion) return;
 
         EnemyScript objetivo = EnemyMasCercano(player);
@@ -90,13 +104,19 @@ public class ActionPanelUIMage : ActionPanelBase
         UsarAccion(player);
     }
 
-    void OnPasarTurno() => GameManager.Instance.BotonPasarTurno();
+    void OnPasarTurno()
+    {
+        PlayerScript player = GetPlayer();
+        if (player == null) return;
+        UsarAccion(player);
+    }
 
     void UsarAccion(PlayerScript player)
     {
         player.yaUsoAccion = true;
+        player.yaSeMovio = true;
         RefrescarBotones(player);
-        if (player.yaSeMovio) GameManager.Instance.SiguienteTurno();
+        GameManager.Instance.SiguienteTurno();
     }
 
     EnemyScript EnemyMasCercano(PlayerScript player)
