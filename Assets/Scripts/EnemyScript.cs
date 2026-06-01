@@ -4,7 +4,7 @@ using UnityEngine;
 public class EnemyScript : MonoBehaviour
 {
     public float speed = 5f;
-    public float altura = 0f;
+    public float altura = 0.5f;
     public float Heatlh = 100;
     public float currentHealth;
     public int enemyMoveRange = 3;

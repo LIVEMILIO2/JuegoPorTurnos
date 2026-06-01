@@ -4,7 +4,7 @@ using UnityEngine;
 public class PlayerScript : MonoBehaviour
 {
     public float speed = 5f;
-    public float altura = 0f;
+    public float altura = 0.5f;
     public float damage = 50f;
     public float health = 100f;
     public float rangoAtaque = 1.5f;
