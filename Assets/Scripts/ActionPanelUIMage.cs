@@ -49,14 +49,13 @@ public class ActionPanelUIMage : ActionPanelBase
     public override void RefrescarBotones(PlayerScript player)
     {
         if (player == null) return;
-
         btnMover.interactable = !player.yaSeMovio && !player.EstaMoviendose();
         btnAtacar.interactable = !player.yaUsoAccion;
         btnHabilidad1.interactable = !player.yaUsoAccion;
         btnPasarTurno.interactable = true;
 
-        string mov = player.yaSeMovio ? "<color=grey>Movimiento ✓</color>" : "<color=white>Movimiento disponible</color>";
-        string accion = player.yaUsoAccion ? "<color=grey>Acción ✓</color>" : "<color=white>Acción disponible</color>";
+        string mov = player.yaSeMovio ? "<color=grey>Movimiento [OK]</color>" : "<color=white>Movimiento disponible</color>";
+        string accion = player.yaUsoAccion ? "<color=grey>Accion [OK]</color>" : "<color=white>Accion disponible</color>";
         statusText.text = $"{mov}\n{accion}";
     }
 
@@ -70,10 +69,8 @@ public class ActionPanelUIMage : ActionPanelBase
     {
         PlayerScript player = GetPlayer();
         if (player == null) return;
-
         statusText.text = "Haz click en el tablero para moverte...";
         btnMover.interactable = false;
-
         Vector2Int origen = GraphCreator.Instance.WorldToGrid(player.transform.position);
         GraphCreator.Instance.MostrarRangoMovimiento(origen, player.playerMoveRange);
         GameManager.Instance.ActivarModoMovimiento();
@@ -83,54 +80,42 @@ public class ActionPanelUIMage : ActionPanelBase
     {
         PlayerScript player = GetPlayer();
         if (player == null || player.yaUsoAccion) return;
-
-        EnemyScript objetivo = EnemyMasCercano(player);
-        if (objetivo == null) { statusText.text = "No hay enemigos en rango."; return; }
-
-        objetivo.RecibirDamage(player.damage);
-        UsarAccion(player);
+        statusText.text = "Selecciona un enemigo...";
+        GameManager.Instance.ActivarSeleccionEnemigo(enemigo =>
+        {
+            enemigo.RecibirDamage(player.damage);
+            UsarAccion(player);
+        });
     }
 
     void OnHabilidad1()
     {
         PlayerScript player = GetPlayer();
         if (player == null || player.yaUsoAccion) return;
-
-        EnemyScript objetivo = EnemyMasCercano(player);
-        if (objetivo == null) { statusText.text = "No hay enemigos en rango de Stun."; return; }
-
-        GameManager.Instance.ModificarIniciativa(objetivo, objetivo.iniciativa - 5);
-        GameManager.Instance.ReconstruirColaActual();
-        UsarAccion(player);
+        statusText.text = "Stun: selecciona un enemigo...";
+        GameManager.Instance.ActivarSeleccionEnemigo(enemigo =>
+        {
+            GameManager.Instance.ModificarIniciativa(enemigo, enemigo.iniciativa - 5);
+            GameManager.Instance.ReconstruirColaActual();
+            UsarAccion(player);
+        });
     }
 
     void OnPasarTurno()
     {
         PlayerScript player = GetPlayer();
         if (player == null) return;
-        UsarAccion(player);
+        player.yaSeMovio = true;
+        player.yaUsoAccion = true;
+        RefrescarBotones(player);
+        GameManager.Instance.SiguienteTurno();
     }
 
     void UsarAccion(PlayerScript player)
     {
         player.yaUsoAccion = true;
-        player.yaSeMovio = true;
         RefrescarBotones(player);
-        GameManager.Instance.SiguienteTurno();
-    }
-
-    EnemyScript EnemyMasCercano(PlayerScript player)
-    {
-        EnemyScript mejor = null;
-        float mejorDist = Mathf.Infinity;
-
-        foreach (var e in GameManager.Instance.enemies)
-        {
-            if (e == null) continue;
-            float d = Vector3.Distance(player.transform.position, e.transform.position);
-            if (d < mejorDist) { mejorDist = d; mejor = e; }
-        }
-
-        return mejor != null && mejorDist <= player.rangoAtaque ? mejor : null;
+        if (player.yaSeMovio)
+            GameManager.Instance.SiguienteTurno();
     }
 }

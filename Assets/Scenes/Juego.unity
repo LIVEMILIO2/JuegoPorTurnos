@@ -371,8 +371,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   players:
-  - {fileID: 398682597}
   - {fileID: 1221803787}
+  - {fileID: 733785537}
+  - {fileID: 398682597}
   enemies:
   - {fileID: 1542084813}
   - {fileID: 1377115999}
@@ -1399,12 +1400,12 @@ MonoBehaviour:
   rangoAtaque: 1.5
   playerMoveRange: 3
   playerStats: Warrior
-  iniciativa: 8
+  iniciativa: 11
   portrait: {fileID: 0}
   indicadorTurno: {fileID: 649681562}
   animator: {fileID: 398682599}
   walk: {fileID: 9100000, guid: a6bb6ba6f691d2646a66c3a7110c4e15, type: 2}
-  rotationSpeed: 12
+  rotationSpeed: 13
   panelAcciones: {fileID: 592346581}
   yaSeMovio: 0
   yaUsoAccion: 0
@@ -2224,8 +2225,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   players:
-  - {fileID: 398682597}
   - {fileID: 1221803787}
+  - {fileID: 733785537}
+  - {fileID: 398682597}
   enemies:
   - {fileID: 1542084813}
   - {fileID: 1377115999}
@@ -3095,7 +3097,18 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 8578571383497427858, guid: f5505174812b1d242895e9c75b5f15d4, type: 3}
   m_PrefabInstance: {fileID: 8917333263592712379}
   m_PrefabAsset: {fileID: 0}
---- !u!95 &733785536
+--- !u!114 &733785537 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2571847444725162856, guid: f5505174812b1d242895e9c75b5f15d4, type: 3}
+  m_PrefabInstance: {fileID: 8917333263592712379}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 733785535}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 170bc4c3ebfc1b742867d9fc9e00d4e5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerScript
+--- !u!95 &733785539
 Animator:
   serializedVersion: 7
   m_ObjectHideFlags: 0
@@ -3105,7 +3118,7 @@ Animator:
   m_GameObject: {fileID: 733785535}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 16cde3c15d06ab7438fdb32572555386, type: 2}
+  m_Controller: {fileID: 9100000, guid: 3486734ac7c6b2241bbb8d075764a2bc, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -4906,6 +4919,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 219955664684877233, guid: e905e2b68ed191d4ea0aa56caa3042b4, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1542084812}
+    - targetCorrespondingSourceObject: {fileID: 219955664684877233, guid: e905e2b68ed191d4ea0aa56caa3042b4, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1542084815}
   m_SourcePrefab: {fileID: 100100000, guid: e905e2b68ed191d4ea0aa56caa3042b4, type: 3}
 --- !u!114 &1316263617 stripped
 MonoBehaviour:
@@ -5348,6 +5364,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 219955664684877233, guid: e905e2b68ed191d4ea0aa56caa3042b4, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1377115998}
+    - targetCorrespondingSourceObject: {fileID: 219955664684877233, guid: e905e2b68ed191d4ea0aa56caa3042b4, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1377116001}
   m_SourcePrefab: {fileID: 100100000, guid: e905e2b68ed191d4ea0aa56caa3042b4, type: 3}
 --- !u!1 &1377115997 stripped
 GameObject:
@@ -5401,6 +5420,27 @@ MonoBehaviour:
   animator: {fileID: 1377115998}
   walk: {fileID: 9100000, guid: b5ee1ba5469615843ad304b54022ab30, type: 2}
   rotationSpeed: 10
+--- !u!65 &1377116001
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1377115997}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.054587763, y: 0.08786455, z: 0.05935927}
+  m_Center: {x: -0.005771284, y: 0.028531784, z: 0.005765643}
 --- !u!1 &1459725239
 GameObject:
   m_ObjectHideFlags: 0
@@ -5794,6 +5834,27 @@ MonoBehaviour:
   animator: {fileID: 1542084812}
   walk: {fileID: 9100000, guid: b5ee1ba5469615843ad304b54022ab30, type: 2}
   rotationSpeed: 10
+--- !u!65 &1542084815
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1542084811}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.054587763, y: 0.08786455, z: 0.05935927}
+  m_Center: {x: -0.005771284, y: 0.028531784, z: 0.005765643}
 --- !u!1 &1559746971
 GameObject:
   m_ObjectHideFlags: 0
@@ -6337,7 +6398,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1802999002
 RectTransform:
   m_ObjectHideFlags: 0
@@ -6412,7 +6473,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6a54235e326fd5143bc15c8985f13d75, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ActionPanelUISupport
-  actionPanel: {fileID: 76992965}
+  actionPanel: {fileID: 1802999001}
   btnMover: {fileID: 1972191537}
   btnAtacar: {fileID: 1476812002}
   btnHabilidad1: {fileID: 851424619}
@@ -7407,11 +7468,15 @@ PrefabInstance:
     - target: {fileID: 2571847444725162856, guid: f5505174812b1d242895e9c75b5f15d4, type: 3}
       propertyPath: walk
       value: 
-      objectReference: {fileID: 9100000, guid: 8c3541abd5ed637439ca8761f6e15f17, type: 2}
+      objectReference: {fileID: 9100000, guid: a6bb6ba6f691d2646a66c3a7110c4e15, type: 2}
     - target: {fileID: 2571847444725162856, guid: f5505174812b1d242895e9c75b5f15d4, type: 3}
       propertyPath: animator
       value: 
-      objectReference: {fileID: 733785536}
+      objectReference: {fileID: 733785539}
+    - target: {fileID: 2571847444725162856, guid: f5505174812b1d242895e9c75b5f15d4, type: 3}
+      propertyPath: iniciativa
+      value: 15
+      objectReference: {fileID: 0}
     - target: {fileID: 2571847444725162856, guid: f5505174812b1d242895e9c75b5f15d4, type: 3}
       propertyPath: panelAcciones
       value: 
@@ -7422,7 +7487,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8578571383497427858, guid: f5505174812b1d242895e9c75b5f15d4, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8955097334014955816, guid: f5505174812b1d242895e9c75b5f15d4, type: 3}
       propertyPath: m_LocalPosition.x
@@ -7471,7 +7536,7 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 8578571383497427858, guid: f5505174812b1d242895e9c75b5f15d4, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 733785536}
+      addedObject: {fileID: 733785539}
   m_SourcePrefab: {fileID: 100100000, guid: f5505174812b1d242895e9c75b5f15d4, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:

@@ -3,6 +3,8 @@ using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 using TMPro;
 
+public enum ModoSeleccion { Ninguno, Enemigo, Aliado }
+
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
@@ -20,6 +22,11 @@ public class GameManager : MonoBehaviour
     private EnemyScript enemyActual;
     private PriorityQueue<MonoBehaviour> turnQueue = new PriorityQueue<MonoBehaviour>();
     private bool modoMovimiento = false;
+
+    // Selección de target
+    private ModoSeleccion modoSeleccion = ModoSeleccion.Ninguno;
+    private System.Action<EnemyScript> callbackEnemigo;
+    private System.Action<PlayerScript> callbackAliado;
 
     private List<TurnEntry> ordenActual = new List<TurnEntry>();
 
@@ -39,7 +46,73 @@ public class GameManager : MonoBehaviour
     {
         if (playerActual != null && !playerActual.EstaMoviendose() && modoMovimiento)
             DetectarClickMovimiento();
+
+        if (modoSeleccion != ModoSeleccion.Ninguno)
+            DetectarClickTarget();
     }
+
+    // ─── Selección de target ─────────────────────────────────────────────────
+
+    public void ActivarSeleccionEnemigo(System.Action<EnemyScript> callback)
+    {
+        modoSeleccion = ModoSeleccion.Enemigo;
+        callbackEnemigo = callback;
+        callbackAliado = null;
+        foreach (var e in enemies)
+            if (e != null && e.indicadorTurno != null)
+                e.indicadorTurno.SetActive(true);
+    }
+
+    public void ActivarSeleccionAliado(System.Action<PlayerScript> callback)
+    {
+        modoSeleccion = ModoSeleccion.Aliado;
+        callbackAliado = callback;
+        callbackEnemigo = null;
+        foreach (var p in players)
+            if (p != null && p.indicadorTurno != null)
+                p.indicadorTurno.SetActive(true);
+    }
+
+    public void CancelarSeleccion()
+    {
+        modoSeleccion = ModoSeleccion.Ninguno;
+        callbackEnemigo = null;
+        callbackAliado = null;
+        ApagarIndicadores();
+        if (playerActual != null && playerActual.indicadorTurno != null)
+            playerActual.indicadorTurno.SetActive(true);
+    }
+
+    void DetectarClickTarget()
+    {
+        if (!Input.GetMouseButtonDown(0)) return;
+
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        if (!Physics.Raycast(ray, out RaycastHit hit)) return;
+
+        if (modoSeleccion == ModoSeleccion.Enemigo)
+        {
+            EnemyScript enemy = hit.collider.GetComponentInParent<EnemyScript>();
+            if (enemy != null && enemies.Contains(enemy))
+            {
+                var cb = callbackEnemigo;
+                CancelarSeleccion();
+                cb?.Invoke(enemy);
+            }
+        }
+        else if (modoSeleccion == ModoSeleccion.Aliado)
+        {
+            PlayerScript player = hit.collider.GetComponentInParent<PlayerScript>();
+            if (player != null && players.Contains(player) && player != playerActual)
+            {
+                var cb = callbackAliado;
+                CancelarSeleccion();
+                cb?.Invoke(player);
+            }
+        }
+    }
+
+    // ─── Turnos ──────────────────────────────────────────────────────────────
 
     void InicializarRonda()
     {
@@ -81,6 +154,7 @@ public class GameManager : MonoBehaviour
         if (enemyActual != null && enemyActual.Moving()) return;
         if (playerActual != null && playerActual.EstaMoviendose()) return;
 
+        CancelarSeleccion();
         modoMovimiento = false;
         playerActual?.OcultarPanel();
         playerActual = null;
