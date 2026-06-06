@@ -81,7 +81,7 @@ public class ActionPanelUIMage : ActionPanelBase
         PlayerScript player = GetPlayer();
         if (player == null || player.yaUsoAccion) return;
         statusText.text = "Selecciona un enemigo...";
-        GameManager.Instance.ActivarSeleccionEnemigo(enemigo =>
+        GameManager.Instance.ActivarSeleccionEnemigo(player.rangoAtaque, enemigo =>
         {
             enemigo.RecibirDamage(player.damage);
             UsarAccion(player);
@@ -93,7 +93,7 @@ public class ActionPanelUIMage : ActionPanelBase
         PlayerScript player = GetPlayer();
         if (player == null || player.yaUsoAccion) return;
         statusText.text = "Stun: selecciona un enemigo...";
-        GameManager.Instance.ActivarSeleccionEnemigo(enemigo =>
+        GameManager.Instance.ActivarSeleccionEnemigo(player.rangoHabilidad, enemigo =>
         {
             GameManager.Instance.ModificarIniciativa(enemigo, enemigo.iniciativa - 5);
             GameManager.Instance.ReconstruirColaActual();

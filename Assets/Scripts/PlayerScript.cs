@@ -9,6 +9,7 @@ public class PlayerScript : MonoBehaviour
     public float health = 100f;
     [HideInInspector] public float healthMax = 100f;
     public float rangoAtaque = 1.5f;
+    public float rangoHabilidad = 2f; // rango para habilidades (stun, curar, buff)
     public int playerMoveRange = 3;
     public string playerStats = "Warrior";
 
@@ -53,29 +54,23 @@ public class PlayerScript : MonoBehaviour
     void Mover()
     {
         Vector3 target = path[index];
-
         Vector3 direccion = (target - transform.position).normalized;
         if (direccion != Vector3.zero)
         {
             Quaternion rotacionObjetivo = Quaternion.LookRotation(direccion);
             transform.rotation = Quaternion.Slerp(transform.rotation, rotacionObjetivo, rotationSpeed * Time.deltaTime);
         }
-
         transform.position = Vector3.MoveTowards(transform.position, target, speed * Time.deltaTime);
-
         if (Vector3.Distance(transform.position, target) < 0.05f)
         {
             transform.position = target;
             index++;
-
             if (index >= path.Count)
             {
                 moviendose = false;
                 yaSeMovio = true;
                 panelAcciones?.RefrescarBotones(this);
-
-                // Si ya usó acción, terminar turno
-                if (yaUsoAccion && GameManager.Instance.JugadorActual() == this)
+                if (yaUsoAccion)
                     GameManager.Instance.SiguienteTurno();
             }
         }
@@ -100,15 +95,10 @@ public class PlayerScript : MonoBehaviour
         yaSeMovio = false;
         yaUsoAccion = false;
         estaDefendiendo = false;
-
         if (indicadorTurno != null) indicadorTurno.SetActive(true);
-
-        // Ocultar paneles de todos los demás players
         foreach (var p in GameManager.Instance.players)
             if (p != null && p != this && p.panelAcciones != null)
                 p.panelAcciones.OcultarPanel();
-
-        // Mostrar el propio
         panelAcciones?.MostrarPanel(this);
     }
 

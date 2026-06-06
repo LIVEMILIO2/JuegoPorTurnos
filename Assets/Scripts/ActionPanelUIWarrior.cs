@@ -85,7 +85,7 @@ public class ActionPanelUIWarrior : ActionPanelBase
         PlayerScript player = GetPlayer();
         if (player == null || player.yaUsoAccion) return;
         statusText.text = "Selecciona un enemigo...";
-        GameManager.Instance.ActivarSeleccionEnemigo(enemigo =>
+        GameManager.Instance.ActivarSeleccionEnemigo(player.rangoAtaque, enemigo =>
         {
             enemigo.RecibirDamage(player.damage);
             Debug.Log($"{player.playerStats} ataca a {enemigo.name} por {player.damage}");
@@ -97,6 +97,7 @@ public class ActionPanelUIWarrior : ActionPanelBase
     {
         PlayerScript player = GetPlayer();
         if (player == null || player.yaUsoAccion) return;
+        // Acelerar se aplica a uno mismo, no necesita selección
         GameManager.Instance.ModificarIniciativa(player, player.iniciativa + 3);
         GameManager.Instance.ReconstruirColaActual();
         Debug.Log($"{player.playerStats} usa Acelerar: iniciativa ahora {player.iniciativa}");

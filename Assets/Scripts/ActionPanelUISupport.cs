@@ -17,8 +17,6 @@ public class ActionPanelUISupport : ActionPanelBase
     [Header("Texto de estado")]
     public TMP_Text statusText;
 
-    [Header("Rango de habilidades")]
-    public float rangoHabilidad = 2f;
     public float cantidadCura = 30f;
 
     private PlayerScript miPlayer;
@@ -89,7 +87,7 @@ public class ActionPanelUISupport : ActionPanelBase
         PlayerScript player = GetPlayer();
         if (player == null || player.yaUsoAccion) return;
         statusText.text = "Selecciona un enemigo...";
-        GameManager.Instance.ActivarSeleccionEnemigo(enemigo =>
+        GameManager.Instance.ActivarSeleccionEnemigo(player.rangoAtaque, enemigo =>
         {
             enemigo.RecibirDamage(player.damage);
             UsarAccion(player);
@@ -101,7 +99,7 @@ public class ActionPanelUISupport : ActionPanelBase
         PlayerScript player = GetPlayer();
         if (player == null || player.yaUsoAccion) return;
         statusText.text = "Curar: selecciona un aliado...";
-        GameManager.Instance.ActivarSeleccionAliado(aliado =>
+        GameManager.Instance.ActivarSeleccionAliado(player.rangoHabilidad, aliado =>
         {
             aliado.health = Mathf.Min(aliado.health + cantidadCura, aliado.healthMax);
             Debug.Log($"Support cura a {aliado.name} por {cantidadCura}. Vida: {aliado.health}");
@@ -114,7 +112,7 @@ public class ActionPanelUISupport : ActionPanelBase
         PlayerScript player = GetPlayer();
         if (player == null || player.yaUsoAccion) return;
         statusText.text = "Buff: selecciona un aliado...";
-        GameManager.Instance.ActivarSeleccionAliado(aliado =>
+        GameManager.Instance.ActivarSeleccionAliado(player.rangoHabilidad, aliado =>
         {
             GameManager.Instance.ModificarIniciativa(aliado, aliado.iniciativa + 3);
             GameManager.Instance.ReconstruirColaActual();

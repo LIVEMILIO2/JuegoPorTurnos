@@ -25,6 +25,7 @@ public class GameManager : MonoBehaviour
 
     // Selección de target
     private ModoSeleccion modoSeleccion = ModoSeleccion.Ninguno;
+    private float rangoSeleccion = 0f;
     private System.Action<EnemyScript> callbackEnemigo;
     private System.Action<PlayerScript> callbackAliado;
 
@@ -53,29 +54,42 @@ public class GameManager : MonoBehaviour
 
     // ─── Selección de target ─────────────────────────────────────────────────
 
-    public void ActivarSeleccionEnemigo(System.Action<EnemyScript> callback)
+    public void ActivarSeleccionEnemigo(float rango, System.Action<EnemyScript> callback)
     {
         modoSeleccion = ModoSeleccion.Enemigo;
+        rangoSeleccion = rango;
         callbackEnemigo = callback;
         callbackAliado = null;
+
+        // Resaltar solo enemigos en rango
         foreach (var e in enemies)
-            if (e != null && e.indicadorTurno != null)
-                e.indicadorTurno.SetActive(true);
+        {
+            if (e == null || e.indicadorTurno == null) continue;
+            float dist = Vector3.Distance(playerActual.transform.position, e.transform.position);
+            e.indicadorTurno.SetActive(dist <= rango);
+        }
     }
 
-    public void ActivarSeleccionAliado(System.Action<PlayerScript> callback)
+    public void ActivarSeleccionAliado(float rango, System.Action<PlayerScript> callback)
     {
         modoSeleccion = ModoSeleccion.Aliado;
+        rangoSeleccion = rango;
         callbackAliado = callback;
         callbackEnemigo = null;
+
+        // Resaltar solo aliados en rango (excluyendo al jugador actual)
         foreach (var p in players)
-            if (p != null && p.indicadorTurno != null)
-                p.indicadorTurno.SetActive(true);
+        {
+            if (p == null || p.indicadorTurno == null || p == playerActual) continue;
+            float dist = Vector3.Distance(playerActual.transform.position, p.transform.position);
+            p.indicadorTurno.SetActive(dist <= rango);
+        }
     }
 
     public void CancelarSeleccion()
     {
         modoSeleccion = ModoSeleccion.Ninguno;
+        rangoSeleccion = 0f;
         callbackEnemigo = null;
         callbackAliado = null;
         ApagarIndicadores();
@@ -95,9 +109,13 @@ public class GameManager : MonoBehaviour
             EnemyScript enemy = hit.collider.GetComponentInParent<EnemyScript>();
             if (enemy != null && enemies.Contains(enemy))
             {
-                var cb = callbackEnemigo;
-                CancelarSeleccion();
-                cb?.Invoke(enemy);
+                float dist = Vector3.Distance(playerActual.transform.position, enemy.transform.position);
+                if (dist <= rangoSeleccion)
+                {
+                    var cb = callbackEnemigo;
+                    CancelarSeleccion();
+                    cb?.Invoke(enemy);
+                }
             }
         }
         else if (modoSeleccion == ModoSeleccion.Aliado)
@@ -105,9 +123,13 @@ public class GameManager : MonoBehaviour
             PlayerScript player = hit.collider.GetComponentInParent<PlayerScript>();
             if (player != null && players.Contains(player) && player != playerActual)
             {
-                var cb = callbackAliado;
-                CancelarSeleccion();
-                cb?.Invoke(player);
+                float dist = Vector3.Distance(playerActual.transform.position, player.transform.position);
+                if (dist <= rangoSeleccion)
+                {
+                    var cb = callbackAliado;
+                    CancelarSeleccion();
+                    cb?.Invoke(player);
+                }
             }
         }
     }
@@ -124,12 +146,8 @@ public class GameManager : MonoBehaviour
     void ConstruirCola()
     {
         turnQueue = new PriorityQueue<MonoBehaviour>();
-
-        foreach (var p in players)
-            if (p != null) turnQueue.Enqueue(p, -p.iniciativa);
-
-        foreach (var e in enemies)
-            if (e != null) turnQueue.Enqueue(e, -e.iniciativa);
+        foreach (var p in players) if (p != null) turnQueue.Enqueue(p, -p.iniciativa);
+        foreach (var e in enemies) if (e != null) turnQueue.Enqueue(e, -e.iniciativa);
     }
 
     void RefrescarOrdenBarra()
@@ -161,12 +179,7 @@ public class GameManager : MonoBehaviour
         enemyActual = null;
         GraphCreator.Instance?.ResetVisual();
 
-        if (turnQueue.IsEmpty())
-        {
-            InicializarRonda();
-            return;
-        }
-
+        if (turnQueue.IsEmpty()) { InicializarRonda(); return; }
         ActivarSiguiente();
     }
 
@@ -273,28 +286,16 @@ public class GameManager : MonoBehaviour
     {
         enemies.Remove(enemy);
         RefrescarOrdenBarra();
-
         if (enemies.Count == 0)
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
-
-        if (enemyActual == enemy)
-        {
-            enemyActual = null;
-            SiguienteTurno();
-        }
+        if (enemyActual == enemy) { enemyActual = null; SiguienteTurno(); }
     }
 
     public void RemovePlayer(PlayerScript player)
     {
         players.Remove(player);
         RefrescarOrdenBarra();
-
         if (players.Count == 0) { SceneManager.LoadScene("GameOver"); return; }
-
-        if (playerActual == player)
-        {
-            playerActual = null;
-            SiguienteTurno();
-        }
+        if (playerActual == player) { playerActual = null; SiguienteTurno(); }
     }
 }
