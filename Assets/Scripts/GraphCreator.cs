@@ -18,8 +18,10 @@ public class GraphCreator : MonoBehaviour
     private GameObject[,] tiles;
     bool foundok = false;
 
-    // Tiles actualmente pintados como rango de movimiento
     private HashSet<(int, int)> tilesEnRango = new HashSet<(int, int)>();
+
+    private static readonly Color colorPlayer = new Color(0.2f, 0.6f, 1f, 1f);
+    private static readonly Color colorEnemy = new Color(1f, 0.25f, 0.25f, 1f);
 
     void Awake()
     {
@@ -57,18 +59,65 @@ public class GraphCreator : MonoBehaviour
         }
     }
 
-    // ─── Rango de movimiento ─────────────────────────────────────────────────
+    // ─── Tiles de unidades ───────────────────────────────────────────────────
+
+    public void PintarTilesUnidades()
+    {
+        foreach (var p in GameManager.Instance.players)
+        {
+            if (p == null) continue;
+            Vector2Int grid = WorldToGrid(p.transform.position);
+            if (grid.x >= 0 && grid.x < TileCount && grid.y >= 0 && grid.y < TileCount)
+                tiles[grid.x, grid.y].GetComponent<Renderer>().material.color = colorPlayer;
+        }
+
+        foreach (var e in GameManager.Instance.enemies)
+        {
+            if (e == null) continue;
+            Vector2Int grid = WorldToGrid(e.transform.position);
+            if (grid.x >= 0 && grid.x < TileCount && grid.y >= 0 && grid.y < TileCount)
+                tiles[grid.x, grid.y].GetComponent<Renderer>().material.color = colorEnemy;
+        }
+    }
 
     /// <summary>
-    /// Pinta los tiles alcanzables en verde y los demás en rojo.
-    /// Usar BFS desde la posición del player hasta playerMoveRange pasos.
+    /// Actualiza en tiempo real el tile de una unidad mientras se mueve.
+    /// Llámalo cada frame desde Mover() en PlayerScript y EnemyScript.
     /// </summary>
+    public void ActualizarTileUnidad(Vector3 posAnterior, Vector3 posActual, bool esPlayer)
+    {
+        Vector2Int gridAnterior = WorldToGrid(posAnterior);
+        Vector2Int gridActual = WorldToGrid(posActual);
+
+        if (gridAnterior == gridActual) return;
+
+        // Limpiar tile anterior solo si no hay otra unidad encima
+        bool hayOtraUnidad = false;
+        foreach (var p in GameManager.Instance.players)
+            if (p != null && WorldToGrid(p.transform.position) == gridAnterior) { hayOtraUnidad = true; break; }
+        if (!hayOtraUnidad)
+            foreach (var e in GameManager.Instance.enemies)
+                if (e != null && WorldToGrid(e.transform.position) == gridAnterior) { hayOtraUnidad = true; break; }
+
+        if (!hayOtraUnidad &&
+            gridAnterior.x >= 0 && gridAnterior.x < TileCount &&
+            gridAnterior.y >= 0 && gridAnterior.y < TileCount)
+            tiles[gridAnterior.x, gridAnterior.y].GetComponent<Renderer>().material.color = Color.white;
+
+        // Pintar tile actual
+        if (gridActual.x >= 0 && gridActual.x < TileCount &&
+            gridActual.y >= 0 && gridActual.y < TileCount)
+            tiles[gridActual.x, gridActual.y].GetComponent<Renderer>().material.color =
+                esPlayer ? colorPlayer : colorEnemy;
+    }
+
+    // ─── Rango de movimiento ─────────────────────────────────────────────────
+
     public void MostrarRangoMovimiento(Vector2Int origen, int rango)
     {
         ResetVisual();
         tilesEnRango.Clear();
 
-        // BFS para encontrar todos los tiles alcanzables
         Queue<(Vector2Int pos, int pasos)> cola = new Queue<(Vector2Int, int)>();
         HashSet<Vector2Int> visitados = new HashSet<Vector2Int>();
 
@@ -94,26 +143,27 @@ public class GraphCreator : MonoBehaviour
                 if (v.x < 0 || v.y < 0 || v.x >= TileCount || v.y >= TileCount) continue;
                 if (mGraph.mGrid[v.x][v.y] == eCellType.blocked) continue;
                 if (visitados.Contains(v)) continue;
-
                 visitados.Add(v);
                 cola.Enqueue((v, pasos + 1));
             }
         }
 
-        // Pintar tiles
         for (int r = 0; r < TileCount; r++)
-        {
             for (int c = 0; c < TileCount; c++)
-            {
-                if (tilesEnRango.Contains((r, c)))
-                    tiles[r, c].GetComponent<Renderer>().material.color = new Color(0.3f, 1f, 0.3f, 1f); // Verde claro
-                else
-                    tiles[r, c].GetComponent<Renderer>().material.color = new Color(1f, 0.3f, 0.3f, 1f); // Rojo claro
-            }
-        }
+                tiles[r, c].GetComponent<Renderer>().material.color =
+                    tilesEnRango.Contains((r, c))
+                        ? new Color(0.3f, 1f, 0.3f, 1f)
+                        : new Color(0.8f, 0.8f, 0.8f, 1f);
 
-        // El tile del jugador en azul
         tiles[origen.x, origen.y].GetComponent<Renderer>().material.color = Color.cyan;
+
+        foreach (var e in GameManager.Instance.enemies)
+        {
+            if (e == null) continue;
+            Vector2Int grid = WorldToGrid(e.transform.position);
+            if (grid.x >= 0 && grid.x < TileCount && grid.y >= 0 && grid.y < TileCount)
+                tiles[grid.x, grid.y].GetComponent<Renderer>().material.color = colorEnemy;
+        }
     }
 
     // ─── Caminos ─────────────────────────────────────────────────────────────
@@ -137,16 +187,17 @@ public class GraphCreator : MonoBehaviour
         if (pathGrid.Count < 2)
         {
             player.SetPath(new List<Vector3>());
+            ResetVisual();
             return;
         }
 
         int pasos = Mathf.Min(player.playerMoveRange, pathGrid.Count - 1);
         List<Vector3> pathWorld = new List<Vector3>();
-
         for (int i = 1; i <= pasos; i++)
             pathWorld.Add(GridToWorld(pathGrid[i].row, pathGrid[i].col));
 
         player.SetPath(pathWorld);
+        ResetVisual(); // limpia el camino pintado, deja solo tiles de unidades
     }
 
     public void CalcularCaminoEnemy(Vector2Int start, Vector2Int goal, EnemyScript enemy)
@@ -168,16 +219,17 @@ public class GraphCreator : MonoBehaviour
         if (pathGrid.Count < 2)
         {
             enemy.SetPath(new List<Vector3>());
+            ResetVisual();
             return;
         }
 
         int pasos = Mathf.Min(enemy.enemyMoveRange, pathGrid.Count - 2);
         List<Vector3> pathWorld = new List<Vector3>();
-
         for (int i = 1; i <= pasos; i++)
             pathWorld.Add(GridToWorld(pathGrid[i].row, pathGrid[i].col));
 
         enemy.SetPath(pathWorld);
+        ResetVisual(); // limpia el camino pintado, deja solo tiles de unidades
     }
 
     // ─── Visual ──────────────────────────────────────────────────────────────
@@ -188,6 +240,8 @@ public class GraphCreator : MonoBehaviour
         for (int r = 0; r < TileCount; r++)
             for (int c = 0; c < TileCount; c++)
                 tiles[r, c].GetComponent<Renderer>().material.color = Color.white;
+
+        PintarTilesUnidades();
     }
 
     void MarcarCamino()

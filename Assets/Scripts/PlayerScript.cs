@@ -9,7 +9,7 @@ public class PlayerScript : MonoBehaviour
     public float health = 100f;
     [HideInInspector] public float healthMax = 100f;
     public float rangoAtaque = 1.5f;
-    public float rangoHabilidad = 2f; // rango para habilidades (stun, curar, buff)
+    public float rangoHabilidad = 2f;
     public int playerMoveRange = 3;
     public string playerStats = "Warrior";
 
@@ -53,6 +53,8 @@ public class PlayerScript : MonoBehaviour
 
     void Mover()
     {
+        Vector3 posAnterior = transform.position; // guardar antes de mover
+
         Vector3 target = path[index];
         Vector3 direccion = (target - transform.position).normalized;
         if (direccion != Vector3.zero)
@@ -60,7 +62,12 @@ public class PlayerScript : MonoBehaviour
             Quaternion rotacionObjetivo = Quaternion.LookRotation(direccion);
             transform.rotation = Quaternion.Slerp(transform.rotation, rotacionObjetivo, rotationSpeed * Time.deltaTime);
         }
+
         transform.position = Vector3.MoveTowards(transform.position, target, speed * Time.deltaTime);
+
+        // Actualizar tile en tiempo real
+        GraphCreator.Instance?.ActualizarTileUnidad(posAnterior, transform.position, true);
+
         if (Vector3.Distance(transform.position, target) < 0.05f)
         {
             transform.position = target;

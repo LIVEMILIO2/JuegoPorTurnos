@@ -45,14 +45,12 @@ public class EnemyScript : MonoBehaviour
     public void TomarTurno()
     {
         if (indicadorTurno != null) indicadorTurno.SetActive(true);
-
         objetivoActual = ObtenerObjetivo();
         if (objetivoActual == null)
         {
             GameManager.Instance.SiguienteTurno();
             return;
         }
-
         Vector2Int start = GraphCreator.Instance.WorldToGrid(transform.position);
         Vector2Int goal = GraphCreator.Instance.WorldToGrid(objetivoActual.transform.position);
         GraphCreator.Instance.CalcularCaminoEnemy(start, goal, this);
@@ -62,22 +60,21 @@ public class EnemyScript : MonoBehaviour
     {
         path = nuevoPath;
         index = 0;
-
         if (path.Count == 0)
         {
             IntentarAtacar();
             GameManager.Instance.SiguienteTurno();
             return;
         }
-
         moving = true;
         if (animator != null) animator.runtimeAnimatorController = walk;
     }
 
     void Mover()
     {
-        Vector3 target = path[index];
+        Vector3 posAnterior = transform.position; // guardar antes de mover
 
+        Vector3 target = path[index];
         Vector3 direccion = (target - transform.position).normalized;
         if (direccion != Vector3.zero)
         {
@@ -87,11 +84,13 @@ public class EnemyScript : MonoBehaviour
 
         transform.position = Vector3.MoveTowards(transform.position, target, speed * Time.deltaTime);
 
+        // Actualizar tile en tiempo real
+        GraphCreator.Instance?.ActualizarTileUnidad(posAnterior, transform.position, false);
+
         if (Vector3.Distance(transform.position, target) < 0.05f)
         {
             transform.position = target;
             index++;
-
             if (index >= path.Count)
             {
                 moving = false;

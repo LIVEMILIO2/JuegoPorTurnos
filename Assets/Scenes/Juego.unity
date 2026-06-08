@@ -399,7 +399,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &77494720
 RectTransform:
   m_ObjectHideFlags: 0
@@ -559,7 +559,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Accelerate
+  m_text: Stun
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -1398,6 +1398,7 @@ MonoBehaviour:
   health: 100
   healthMax: 100
   rangoAtaque: 1.5
+  rangoHabilidad: 2
   playerMoveRange: 3
   playerStats: Warrior
   iniciativa: 11
@@ -2984,7 +2985,7 @@ GameObject:
   - component: {fileID: 728170585}
   - component: {fileID: 728170587}
   m_Layer: 5
-  m_Name: Stun
+  m_Name: Buff
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3368,7 +3369,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Stun
+  m_text: Buff
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -3461,7 +3462,7 @@ GameObject:
   - component: {fileID: 851424617}
   - component: {fileID: 851424619}
   m_Layer: 5
-  m_Name: Accelerate
+  m_Name: Curar
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4347,7 +4348,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Accelerate
+  m_text: Curar
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -4598,6 +4599,7 @@ MonoBehaviour:
   health: 100
   healthMax: 100
   rangoAtaque: 1.5
+  rangoHabilidad: 2
   playerMoveRange: 5
   playerStats: Warrior
   iniciativa: 10
@@ -5194,7 +5196,7 @@ GameObject:
   - component: {fileID: 1368615633}
   - component: {fileID: 1368615632}
   m_Layer: 5
-  m_Name: Accelerate
+  m_Name: Stun
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6480,7 +6482,6 @@ MonoBehaviour:
   btnHabilidad2: {fileID: 728170587}
   btnPasarTurno: {fileID: 76992968}
   statusText: {fileID: 1124814656}
-  rangoHabilidad: 2
   cantidadCura: 30
 --- !u!1 &1939054633
 GameObject:
@@ -6642,6 +6643,7 @@ MonoBehaviour:
   health: 100
   healthMax: 100
   rangoAtaque: 1.5
+  rangoHabilidad: 2
   playerMoveRange: 3
   playerStats: Warrior
   iniciativa: 10
