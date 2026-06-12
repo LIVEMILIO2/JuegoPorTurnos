@@ -80,10 +80,6 @@ public class GraphCreator : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Actualiza en tiempo real el tile de una unidad mientras se mueve.
-    /// Llámalo cada frame desde Mover() en PlayerScript y EnemyScript.
-    /// </summary>
     public void ActualizarTileUnidad(Vector3 posAnterior, Vector3 posActual, bool esPlayer)
     {
         Vector2Int gridAnterior = WorldToGrid(posAnterior);
@@ -91,7 +87,6 @@ public class GraphCreator : MonoBehaviour
 
         if (gridAnterior == gridActual) return;
 
-        // Limpiar tile anterior solo si no hay otra unidad encima
         bool hayOtraUnidad = false;
         foreach (var p in GameManager.Instance.players)
             if (p != null && WorldToGrid(p.transform.position) == gridAnterior) { hayOtraUnidad = true; break; }
@@ -104,11 +99,60 @@ public class GraphCreator : MonoBehaviour
             gridAnterior.y >= 0 && gridAnterior.y < TileCount)
             tiles[gridAnterior.x, gridAnterior.y].GetComponent<Renderer>().material.color = Color.white;
 
-        // Pintar tile actual
         if (gridActual.x >= 0 && gridActual.x < TileCount &&
             gridActual.y >= 0 && gridActual.y < TileCount)
             tiles[gridActual.x, gridActual.y].GetComponent<Renderer>().material.color =
                 esPlayer ? colorPlayer : colorEnemy;
+    }
+
+    // ─── Bloqueo de posiciones ocupadas ─────────────────────────────────────
+
+    bool EstaOcupado(Vector2Int pos, Vector2Int excluir)
+    {
+        if (pos == excluir) return false;
+        foreach (var p in GameManager.Instance.players)
+            if (p != null && WorldToGrid(p.transform.position) == pos) return true;
+        foreach (var e in GameManager.Instance.enemies)
+            if (e != null && WorldToGrid(e.transform.position) == pos) return true;
+        return false;
+    }
+
+    void BloquearPosicionesOcupadas(Vector2Int excluir)
+    {
+        foreach (var p in GameManager.Instance.players)
+        {
+            if (p == null) continue;
+            Vector2Int g = WorldToGrid(p.transform.position);
+            if (g != excluir && g.x >= 0 && g.x < TileCount && g.y >= 0 && g.y < TileCount)
+                mGraph.mGrid[g.x][g.y] = eCellType.blocked;
+        }
+        foreach (var e in GameManager.Instance.enemies)
+        {
+            if (e == null) continue;
+            Vector2Int g = WorldToGrid(e.transform.position);
+            if (g != excluir && g.x >= 0 && g.x < TileCount && g.y >= 0 && g.y < TileCount)
+                mGraph.mGrid[g.x][g.y] = eCellType.blocked;
+        }
+    }
+
+    void DesbloquearPosicionesOcupadas()
+    {
+        foreach (var p in GameManager.Instance.players)
+        {
+            if (p == null) continue;
+            Vector2Int g = WorldToGrid(p.transform.position);
+            if (g.x >= 0 && g.x < TileCount && g.y >= 0 && g.y < TileCount)
+                if (mGraph.mGrid[g.x][g.y] == eCellType.blocked)
+                    mGraph.mGrid[g.x][g.y] = eCellType.empty;
+        }
+        foreach (var e in GameManager.Instance.enemies)
+        {
+            if (e == null) continue;
+            Vector2Int g = WorldToGrid(e.transform.position);
+            if (g.x >= 0 && g.x < TileCount && g.y >= 0 && g.y < TileCount)
+                if (mGraph.mGrid[g.x][g.y] == eCellType.blocked)
+                    mGraph.mGrid[g.x][g.y] = eCellType.empty;
+        }
     }
 
     // ─── Rango de movimiento ─────────────────────────────────────────────────
@@ -117,6 +161,9 @@ public class GraphCreator : MonoBehaviour
     {
         ResetVisual();
         tilesEnRango.Clear();
+
+        // Bloquear ocupados para que el BFS los excluya
+        BloquearPosicionesOcupadas(origen);
 
         Queue<(Vector2Int pos, int pasos)> cola = new Queue<(Vector2Int, int)>();
         HashSet<Vector2Int> visitados = new HashSet<Vector2Int>();
@@ -148,6 +195,8 @@ public class GraphCreator : MonoBehaviour
             }
         }
 
+        DesbloquearPosicionesOcupadas();
+
         for (int r = 0; r < TileCount; r++)
             for (int c = 0; c < TileCount; c++)
                 tiles[r, c].GetComponent<Renderer>().material.color =
@@ -172,6 +221,7 @@ public class GraphCreator : MonoBehaviour
     {
         mGraph.Reset();
         ResetVisual();
+        BloquearPosicionesOcupadas(start);
 
         mGraph.SetStart(start);
         mGraph.SetGoal(goal);
@@ -184,6 +234,8 @@ public class GraphCreator : MonoBehaviour
 
         List<sCell> pathGrid = mGraph.GetOptimalPath();
 
+        DesbloquearPosicionesOcupadas();
+
         if (pathGrid.Count < 2)
         {
             player.SetPath(new List<Vector3>());
@@ -194,16 +246,23 @@ public class GraphCreator : MonoBehaviour
         int pasos = Mathf.Min(player.playerMoveRange, pathGrid.Count - 1);
         List<Vector3> pathWorld = new List<Vector3>();
         for (int i = 1; i <= pasos; i++)
-            pathWorld.Add(GridToWorld(pathGrid[i].row, pathGrid[i].col));
+        {
+            var cell = pathGrid[i];
+            Vector2Int pos = new Vector2Int(cell.row, cell.col);
+            // Detener el path antes de un tile ocupado
+            if (EstaOcupado(pos, start)) break;
+            pathWorld.Add(GridToWorld(cell.row, cell.col));
+        }
 
         player.SetPath(pathWorld);
-        ResetVisual(); // limpia el camino pintado, deja solo tiles de unidades
+        ResetVisual();
     }
 
     public void CalcularCaminoEnemy(Vector2Int start, Vector2Int goal, EnemyScript enemy)
     {
         mGraph.Reset();
         ResetVisual();
+        BloquearPosicionesOcupadas(start);
 
         mGraph.SetStart(start);
         mGraph.SetGoal(goal);
@@ -216,6 +275,8 @@ public class GraphCreator : MonoBehaviour
 
         var pathGrid = mGraph.GetOptimalPath();
 
+        DesbloquearPosicionesOcupadas();
+
         if (pathGrid.Count < 2)
         {
             enemy.SetPath(new List<Vector3>());
@@ -226,10 +287,15 @@ public class GraphCreator : MonoBehaviour
         int pasos = Mathf.Min(enemy.enemyMoveRange, pathGrid.Count - 2);
         List<Vector3> pathWorld = new List<Vector3>();
         for (int i = 1; i <= pasos; i++)
-            pathWorld.Add(GridToWorld(pathGrid[i].row, pathGrid[i].col));
+        {
+            var cell = pathGrid[i];
+            Vector2Int pos = new Vector2Int(cell.row, cell.col);
+            if (EstaOcupado(pos, start)) break;
+            pathWorld.Add(GridToWorld(cell.row, cell.col));
+        }
 
         enemy.SetPath(pathWorld);
-        ResetVisual(); // limpia el camino pintado, deja solo tiles de unidades
+        ResetVisual();
     }
 
     // ─── Visual ──────────────────────────────────────────────────────────────

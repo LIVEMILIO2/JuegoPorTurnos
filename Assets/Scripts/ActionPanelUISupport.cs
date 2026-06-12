@@ -10,8 +10,8 @@ public class ActionPanelUISupport : ActionPanelBase
     [Header("Botones")]
     public Button btnMover;
     public Button btnAtacar;
-    public Button btnHabilidad1;
-    public Button btnHabilidad2;
+    public Button btnHabilidad1; // Curar
+    public Button btnHabilidad2; // Buff
     public Button btnPasarTurno;
 
     [Header("Texto de estado")]
@@ -20,6 +20,7 @@ public class ActionPanelUISupport : ActionPanelBase
     public float cantidadCura = 30f;
 
     private PlayerScript miPlayer;
+    private bool enTutorial => TutorialManager.Instance != null;
 
     void Start()
     {
@@ -54,6 +55,10 @@ public class ActionPanelUISupport : ActionPanelBase
     public override void RefrescarBotones(PlayerScript player)
     {
         if (player == null) return;
+
+        // En tutorial, ModoTutorial controla los botones
+        if (enTutorial) return;
+
         btnMover.interactable = !player.yaSeMovio && !player.EstaMoviendose();
         btnAtacar.interactable = !player.yaUsoAccion;
         btnHabilidad1.interactable = !player.yaUsoAccion;
@@ -63,6 +68,25 @@ public class ActionPanelUISupport : ActionPanelBase
         string mov = player.yaSeMovio ? "<color=grey>Movimiento [OK]</color>" : "<color=white>Movimiento disponible</color>";
         string accion = player.yaUsoAccion ? "<color=grey>Accion [OK]</color>" : "<color=white>Accion disponible</color>";
         statusText.text = $"{mov}\n{accion}";
+    }
+
+    public override void ModoTutorial(TutorialManager.AccionEsperada accion, string personaje)
+    {
+        if (personaje != "Support" || accion == TutorialManager.AccionEsperada.Ninguna)
+        {
+            btnMover.interactable = false;
+            btnAtacar.interactable = false;
+            btnHabilidad1.interactable = false;
+            btnHabilidad2.interactable = false;
+            btnPasarTurno.interactable = false;
+            return;
+        }
+
+        btnMover.interactable = accion == TutorialManager.AccionEsperada.Moverse;
+        btnAtacar.interactable = accion == TutorialManager.AccionEsperada.Atacar;
+        btnHabilidad1.interactable = accion == TutorialManager.AccionEsperada.Habilidad1;
+        btnHabilidad2.interactable = accion == TutorialManager.AccionEsperada.Habilidad2;
+        btnPasarTurno.interactable = false;
     }
 
     PlayerScript GetPlayer()
@@ -90,7 +114,7 @@ public class ActionPanelUISupport : ActionPanelBase
         GameManager.Instance.ActivarSeleccionEnemigo(player.rangoAtaque, enemigo =>
         {
             enemigo.RecibirDamage(player.damage);
-            UsarAccion(player);
+            UsarAccion(player, TutorialManager.AccionEsperada.Atacar);
         });
     }
 
@@ -103,7 +127,7 @@ public class ActionPanelUISupport : ActionPanelBase
         {
             aliado.health = Mathf.Min(aliado.health + cantidadCura, aliado.healthMax);
             Debug.Log($"Support cura a {aliado.name} por {cantidadCura}. Vida: {aliado.health}");
-            UsarAccion(player);
+            UsarAccion(player, TutorialManager.AccionEsperada.Habilidad1);
         });
     }
 
@@ -117,7 +141,7 @@ public class ActionPanelUISupport : ActionPanelBase
             GameManager.Instance.ModificarIniciativa(aliado, aliado.iniciativa + 3);
             GameManager.Instance.ReconstruirColaActual();
             Debug.Log($"Support buffea a {aliado.name}: iniciativa ahora {aliado.iniciativa}");
-            UsarAccion(player);
+            UsarAccion(player, TutorialManager.AccionEsperada.Habilidad2);
         });
     }
 
@@ -127,15 +151,23 @@ public class ActionPanelUISupport : ActionPanelBase
         if (player == null) return;
         player.yaSeMovio = true;
         player.yaUsoAccion = true;
-        RefrescarBotones(player);
         GameManager.Instance.SiguienteTurno();
     }
 
-    void UsarAccion(PlayerScript player)
+    void UsarAccion(PlayerScript player, TutorialManager.AccionEsperada accionHecha)
     {
         player.yaUsoAccion = true;
-        RefrescarBotones(player);
-        if (player.yaSeMovio)
+
+        if (enTutorial)
+        {
+            bool esUltimo = TutorialManager.Instance.EsUltimoPasoDelPersonaje();
+            TutorialManager.Instance.AccionCompletada(accionHecha);
+            if (player.yaSeMovio && esUltimo)
+                GameManager.Instance.SiguienteTurno();
+        }
+        else if (player.yaSeMovio)
+        {
             GameManager.Instance.SiguienteTurno();
+        }
     }
 }

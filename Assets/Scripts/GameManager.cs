@@ -23,7 +23,6 @@ public class GameManager : MonoBehaviour
     private PriorityQueue<MonoBehaviour> turnQueue = new PriorityQueue<MonoBehaviour>();
     private bool modoMovimiento = false;
 
-    // Selección de target
     private ModoSeleccion modoSeleccion = ModoSeleccion.Ninguno;
     private float rangoSeleccion = 0f;
     private System.Action<EnemyScript> callbackEnemigo;
@@ -61,7 +60,6 @@ public class GameManager : MonoBehaviour
         callbackEnemigo = callback;
         callbackAliado = null;
 
-        // Resaltar solo enemigos en rango
         foreach (var e in enemies)
         {
             if (e == null || e.indicadorTurno == null) continue;
@@ -77,7 +75,6 @@ public class GameManager : MonoBehaviour
         callbackAliado = callback;
         callbackEnemigo = null;
 
-        // Resaltar solo aliados en rango (excluyendo al jugador actual)
         foreach (var p in players)
         {
             if (p == null || p.indicadorTurno == null || p == playerActual) continue;
@@ -168,7 +165,6 @@ public class GameManager : MonoBehaviour
 
     public void SiguienteTurno()
     {
-        Debug.Log("SiguienteTurno - caller: " + new System.Diagnostics.StackFrame(1, true).GetMethod().Name);
         if (enemyActual != null && enemyActual.Moving()) return;
         if (playerActual != null && playerActual.EstaMoviendose()) return;
 
@@ -198,6 +194,7 @@ public class GameManager : MonoBehaviour
                 ActualizarUI();
                 RefrescarOrdenBarra();
                 p.ReiniciarTurno();
+                TutorialManager.Instance?.NotificarCambioTurno();
                 return;
             }
 
@@ -279,7 +276,6 @@ public class GameManager : MonoBehaviour
     public void BotonPasarTurno()
     {
         // Cada panel maneja su propio pasar turno
-        // Este método queda vacío intencionalmente
     }
 
     public void RemoveEnemy(EnemyScript enemy)

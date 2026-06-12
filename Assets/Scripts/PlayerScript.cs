@@ -53,7 +53,7 @@ public class PlayerScript : MonoBehaviour
 
     void Mover()
     {
-        Vector3 posAnterior = transform.position; // guardar antes de mover
+        Vector3 posAnterior = transform.position;
 
         Vector3 target = path[index];
         Vector3 direccion = (target - transform.position).normalized;
@@ -65,7 +65,6 @@ public class PlayerScript : MonoBehaviour
 
         transform.position = Vector3.MoveTowards(transform.position, target, speed * Time.deltaTime);
 
-        // Actualizar tile en tiempo real
         GraphCreator.Instance?.ActualizarTileUnidad(posAnterior, transform.position, true);
 
         if (Vector3.Distance(transform.position, target) < 0.05f)
@@ -77,8 +76,16 @@ public class PlayerScript : MonoBehaviour
                 moviendose = false;
                 yaSeMovio = true;
                 panelAcciones?.RefrescarBotones(this);
-                if (yaUsoAccion)
+
+                if (TutorialManager.Instance != null)
+                {
+                    // En tutorial: verificar si el movimiento fue válido
+                    TutorialManager.Instance.VerificarMovimiento(this);
+                }
+                else if (yaUsoAccion)
+                {
                     GameManager.Instance.SiguienteTurno();
+                }
             }
         }
     }
@@ -109,11 +116,7 @@ public class PlayerScript : MonoBehaviour
         panelAcciones?.MostrarPanel(this);
     }
 
-    public void OcultarPanel()
-    {
-        panelAcciones?.OcultarPanel();
-    }
-
+    public void OcultarPanel() => panelAcciones?.OcultarPanel();
     public bool EsMiTurno() => GameManager.Instance.JugadorActual() == this;
     public bool EstaMoviendose() => moviendose;
 

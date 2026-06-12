@@ -10,13 +10,14 @@ public class ActionPanelUIMage : ActionPanelBase
     [Header("Botones")]
     public Button btnMover;
     public Button btnAtacar;
-    public Button btnHabilidad1;
+    public Button btnHabilidad1; // Stun
     public Button btnPasarTurno;
 
     [Header("Texto de estado")]
     public TMP_Text statusText;
 
     private PlayerScript miPlayer;
+    private bool enTutorial => TutorialManager.Instance != null;
 
     void Start()
     {
@@ -49,6 +50,10 @@ public class ActionPanelUIMage : ActionPanelBase
     public override void RefrescarBotones(PlayerScript player)
     {
         if (player == null) return;
+
+        // En tutorial, ModoTutorial controla los botones
+        if (enTutorial) return;
+
         btnMover.interactable = !player.yaSeMovio && !player.EstaMoviendose();
         btnAtacar.interactable = !player.yaUsoAccion;
         btnHabilidad1.interactable = !player.yaUsoAccion;
@@ -57,6 +62,23 @@ public class ActionPanelUIMage : ActionPanelBase
         string mov = player.yaSeMovio ? "<color=grey>Movimiento [OK]</color>" : "<color=white>Movimiento disponible</color>";
         string accion = player.yaUsoAccion ? "<color=grey>Accion [OK]</color>" : "<color=white>Accion disponible</color>";
         statusText.text = $"{mov}\n{accion}";
+    }
+
+    public override void ModoTutorial(TutorialManager.AccionEsperada accion, string personaje)
+    {
+        if (personaje != "Mage" || accion == TutorialManager.AccionEsperada.Ninguna)
+        {
+            btnMover.interactable = false;
+            btnAtacar.interactable = false;
+            btnHabilidad1.interactable = false;
+            btnPasarTurno.interactable = false;
+            return;
+        }
+
+        btnMover.interactable = accion == TutorialManager.AccionEsperada.Moverse;
+        btnAtacar.interactable = accion == TutorialManager.AccionEsperada.Atacar;
+        btnHabilidad1.interactable = accion == TutorialManager.AccionEsperada.Habilidad1;
+        btnPasarTurno.interactable = false;
     }
 
     PlayerScript GetPlayer()
@@ -84,7 +106,7 @@ public class ActionPanelUIMage : ActionPanelBase
         GameManager.Instance.ActivarSeleccionEnemigo(player.rangoAtaque, enemigo =>
         {
             enemigo.RecibirDamage(player.damage);
-            UsarAccion(player);
+            UsarAccion(player, TutorialManager.AccionEsperada.Atacar);
         });
     }
 
@@ -97,7 +119,7 @@ public class ActionPanelUIMage : ActionPanelBase
         {
             GameManager.Instance.ModificarIniciativa(enemigo, enemigo.iniciativa - 5);
             GameManager.Instance.ReconstruirColaActual();
-            UsarAccion(player);
+            UsarAccion(player, TutorialManager.AccionEsperada.Habilidad1);
         });
     }
 
@@ -107,15 +129,23 @@ public class ActionPanelUIMage : ActionPanelBase
         if (player == null) return;
         player.yaSeMovio = true;
         player.yaUsoAccion = true;
-        RefrescarBotones(player);
         GameManager.Instance.SiguienteTurno();
     }
 
-    void UsarAccion(PlayerScript player)
+    void UsarAccion(PlayerScript player, TutorialManager.AccionEsperada accionHecha)
     {
         player.yaUsoAccion = true;
-        RefrescarBotones(player);
-        if (player.yaSeMovio)
+
+        if (enTutorial)
+        {
+            bool esUltimo = TutorialManager.Instance.EsUltimoPasoDelPersonaje();
+            TutorialManager.Instance.AccionCompletada(accionHecha);
+            if (player.yaSeMovio && esUltimo)
+                GameManager.Instance.SiguienteTurno();
+        }
+        else if (player.yaSeMovio)
+        {
             GameManager.Instance.SiguienteTurno();
+        }
     }
 }
