@@ -10,9 +10,9 @@ public class TurnSlot : MonoBehaviour
     public TMP_Text label;  
 
     [Header("Colores")]
-    public Color colorPlayer = new Color(0.2f, 0.5f, 1f);
+    public Color colorPlayer = new Color(0.9f, 0.2f, 0.2f);
     public Color colorEnemy = new Color(0.9f, 0.2f, 0.2f);
-    public Color colorBorde = Color.yellow;
+    public Color colorBorde = Color.blue;
 
     public void Setup(bool esPlayer, bool esActivo)
     {

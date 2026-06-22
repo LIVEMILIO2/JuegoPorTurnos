@@ -168,9 +168,9 @@ MonoBehaviour:
   fondo: {fileID: 5996956225018760568}
   borde: {fileID: 6077280363778751589}
   label: {fileID: 4564196335437165666}
-  colorPlayer: {r: 0.2, g: 0.5, b: 1, a: 1}
+  colorPlayer: {r: 0.91324806, g: 1, b: 0, a: 1}
   colorEnemy: {r: 0.9, g: 0.2, b: 0.2, a: 1}
-  colorBorde: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  colorBorde: {r: 0.015686274, g: 0.82733303, b: 1, a: 1}
 --- !u!1 &8493204668862349889
 GameObject:
   m_ObjectHideFlags: 0
