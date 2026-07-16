@@ -17,8 +17,7 @@ public class sCell
     public sCell parent;
 }
 
-// Wrapper MonoBehaviour para que sCell pueda entrar en la PriorityQueue del asset
-// (el asset requiere que TElement sea un Component)
+
 public class sCellMono : MonoBehaviour
 {
     public sCell cell;
@@ -55,7 +54,7 @@ public class Graph
 
     public void Reset()
     {
-        // Limpiar GameObjects temporales del paso anterior
+
         if (queueHost != null)
             GameObject.Destroy(queueHost);
 
