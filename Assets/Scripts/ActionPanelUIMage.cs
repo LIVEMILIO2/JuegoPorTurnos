@@ -50,8 +50,6 @@ public class ActionPanelUIMage : ActionPanelBase
     public override void RefrescarBotones(PlayerScript player)
     {
         if (player == null) return;
-
-        // En tutorial, ModoTutorial controla los botones
         if (enTutorial) return;
 
         btnMover.interactable = !player.yaSeMovio && !player.EstaMoviendose();
@@ -103,8 +101,10 @@ public class ActionPanelUIMage : ActionPanelBase
         PlayerScript player = GetPlayer();
         if (player == null || player.yaUsoAccion) return;
         statusText.text = "Selecciona un enemigo...";
+        GraphCreator.Instance.MostrarRangoAccion(player.transform.position, player.rangoAtaque, false);
         GameManager.Instance.ActivarSeleccionEnemigo(player.rangoAtaque, enemigo =>
         {
+            GraphCreator.Instance.ResetVisual();
             enemigo.RecibirDamage(player.damage);
             UsarAccion(player, TutorialManager.AccionEsperada.Atacar);
         });
@@ -115,8 +115,10 @@ public class ActionPanelUIMage : ActionPanelBase
         PlayerScript player = GetPlayer();
         if (player == null || player.yaUsoAccion) return;
         statusText.text = "Stun: selecciona un enemigo...";
+        GraphCreator.Instance.MostrarRangoAccion(player.transform.position, player.rangoHabilidad, true);
         GameManager.Instance.ActivarSeleccionEnemigo(player.rangoHabilidad, enemigo =>
         {
+            GraphCreator.Instance.ResetVisual();
             GameManager.Instance.ModificarIniciativa(enemigo, enemigo.iniciativa - 5);
             GameManager.Instance.ReconstruirColaActual();
             UsarAccion(player, TutorialManager.AccionEsperada.Habilidad1);

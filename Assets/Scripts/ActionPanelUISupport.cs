@@ -55,8 +55,6 @@ public class ActionPanelUISupport : ActionPanelBase
     public override void RefrescarBotones(PlayerScript player)
     {
         if (player == null) return;
-
-        // En tutorial, ModoTutorial controla los botones
         if (enTutorial) return;
 
         btnMover.interactable = !player.yaSeMovio && !player.EstaMoviendose();
@@ -111,8 +109,10 @@ public class ActionPanelUISupport : ActionPanelBase
         PlayerScript player = GetPlayer();
         if (player == null || player.yaUsoAccion) return;
         statusText.text = "Selecciona un enemigo...";
+        GraphCreator.Instance.MostrarRangoAccion(player.transform.position, player.rangoAtaque, false);
         GameManager.Instance.ActivarSeleccionEnemigo(player.rangoAtaque, enemigo =>
         {
+            GraphCreator.Instance.ResetVisual();
             enemigo.RecibirDamage(player.damage);
             UsarAccion(player, TutorialManager.AccionEsperada.Atacar);
         });
@@ -123,8 +123,10 @@ public class ActionPanelUISupport : ActionPanelBase
         PlayerScript player = GetPlayer();
         if (player == null || player.yaUsoAccion) return;
         statusText.text = "Curar: selecciona un aliado...";
+        GraphCreator.Instance.MostrarRangoAccion(player.transform.position, player.rangoHabilidad, true);
         GameManager.Instance.ActivarSeleccionAliado(player.rangoHabilidad, aliado =>
         {
+            GraphCreator.Instance.ResetVisual();
             aliado.health = Mathf.Min(aliado.health + cantidadCura, aliado.healthMax);
             Debug.Log($"Support cura a {aliado.name} por {cantidadCura}. Vida: {aliado.health}");
             UsarAccion(player, TutorialManager.AccionEsperada.Habilidad1);
@@ -136,8 +138,10 @@ public class ActionPanelUISupport : ActionPanelBase
         PlayerScript player = GetPlayer();
         if (player == null || player.yaUsoAccion) return;
         statusText.text = "Buff: selecciona un aliado...";
+        GraphCreator.Instance.MostrarRangoAccion(player.transform.position, player.rangoHabilidad, true);
         GameManager.Instance.ActivarSeleccionAliado(player.rangoHabilidad, aliado =>
         {
+            GraphCreator.Instance.ResetVisual();
             GameManager.Instance.ModificarIniciativa(aliado, aliado.iniciativa + 3);
             GameManager.Instance.ReconstruirColaActual();
             Debug.Log($"Support buffea a {aliado.name}: iniciativa ahora {aliado.iniciativa}");

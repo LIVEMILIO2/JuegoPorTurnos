@@ -22,6 +22,8 @@ public class GraphCreator : MonoBehaviour
 
     private static readonly Color colorPlayer = new Color(0.2f, 0.6f, 1f, 1f);
     private static readonly Color colorEnemy = new Color(1f, 0.25f, 0.25f, 1f);
+    private static readonly Color colorRangoAtaque = new Color(1f, 0.6f, 0f, 1f);    // Naranja
+    private static readonly Color colorRangoHabilidad = new Color(0.8f, 0.3f, 1f, 1f);  // Morado
 
     void Awake()
     {
@@ -105,6 +107,34 @@ public class GraphCreator : MonoBehaviour
                 esPlayer ? colorPlayer : colorEnemy;
     }
 
+    // ─── Rango de acción ─────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Muestra el rango de ataque (naranja) o habilidad (morado) desde la posición del jugador.
+    /// </summary>
+    public void MostrarRangoAccion(Vector3 posicionJugador, float rango, bool esHabilidad = false)
+    {
+        ResetVisual();
+
+        Color colorRango = esHabilidad ? colorRangoHabilidad : colorRangoAtaque;
+
+        for (int r = 0; r < TileCount; r++)
+        {
+            for (int c = 0; c < TileCount; c++)
+            {
+                Vector3 posWorld = GridToWorld(r, c);
+                float dist = Vector3.Distance(posicionJugador, posWorld);
+                tiles[r, c].GetComponent<Renderer>().material.color =
+                    dist <= rango
+                        ? colorRango
+                        : new Color(0.8f, 0.8f, 0.8f, 1f);
+            }
+        }
+
+        // Pintar unidades encima para que siempre se vean
+        PintarTilesUnidades();
+    }
+
     // ─── Bloqueo de posiciones ocupadas ─────────────────────────────────────
 
     bool EstaOcupado(Vector2Int pos, Vector2Int excluir)
@@ -162,7 +192,6 @@ public class GraphCreator : MonoBehaviour
         ResetVisual();
         tilesEnRango.Clear();
 
-        // Bloquear ocupados para que el BFS los excluya
         BloquearPosicionesOcupadas(origen);
 
         Queue<(Vector2Int pos, int pasos)> cola = new Queue<(Vector2Int, int)>();
@@ -249,7 +278,6 @@ public class GraphCreator : MonoBehaviour
         {
             var cell = pathGrid[i];
             Vector2Int pos = new Vector2Int(cell.row, cell.col);
-            // Detener el path antes de un tile ocupado
             if (EstaOcupado(pos, start)) break;
             pathWorld.Add(GridToWorld(cell.row, cell.col));
         }

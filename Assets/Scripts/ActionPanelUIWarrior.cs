@@ -53,8 +53,6 @@ public class ActionPanelUIWarrior : ActionPanelBase
     public override void RefrescarBotones(PlayerScript player)
     {
         if (player == null) return;
-
-        // En tutorial, ModoTutorial controla los botones
         if (enTutorial) return;
 
         btnMover.interactable = !player.yaSeMovio && !player.EstaMoviendose();
@@ -109,8 +107,10 @@ public class ActionPanelUIWarrior : ActionPanelBase
         PlayerScript player = GetPlayer();
         if (player == null || player.yaUsoAccion) return;
         statusText.text = "Selecciona un enemigo...";
+        GraphCreator.Instance.MostrarRangoAccion(player.transform.position, player.rangoAtaque, false);
         GameManager.Instance.ActivarSeleccionEnemigo(player.rangoAtaque, enemigo =>
         {
+            GraphCreator.Instance.ResetVisual();
             enemigo.RecibirDamage(player.damage);
             Debug.Log($"{player.playerStats} ataca a {enemigo.name} por {player.damage}");
             UsarAccion(player, TutorialManager.AccionEsperada.Atacar);
@@ -121,6 +121,7 @@ public class ActionPanelUIWarrior : ActionPanelBase
     {
         PlayerScript player = GetPlayer();
         if (player == null || player.yaUsoAccion) return;
+        // Acelerar se aplica a uno mismo, no necesita rango
         GameManager.Instance.ModificarIniciativa(player, player.iniciativa + 3);
         GameManager.Instance.ReconstruirColaActual();
         Debug.Log($"{player.playerStats} usa Acelerar: iniciativa ahora {player.iniciativa}");
@@ -131,6 +132,7 @@ public class ActionPanelUIWarrior : ActionPanelBase
     {
         PlayerScript player = GetPlayer();
         if (player == null || player.yaUsoAccion) return;
+        // Defender se aplica a uno mismo, no necesita rango
         GameManager.Instance.ModificarIniciativa(player, player.iniciativa + 5);
         GameManager.Instance.ReconstruirColaActual();
         player.estaDefendiendo = true;
