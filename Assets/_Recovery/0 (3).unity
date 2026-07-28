@@ -5271,10 +5271,6 @@ MonoBehaviour:
   TileCount: 16
   startX: 0
   startZ: 0
-  cantidadTilesBuff: 3
-  cantidadTilesDebuff: 3
-  efectoBuff: 10
-  efectoDebuff: 10
 --- !u!4 &1367498702
 Transform:
   m_ObjectHideFlags: 0

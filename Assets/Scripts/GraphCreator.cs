@@ -14,6 +14,12 @@ public class GraphCreator : MonoBehaviour
     public float startX;
     public float startZ;
 
+    [Header("Tiles especiales")]
+    public int cantidadTilesBuff = 3;  // cuántos tiles de +iniciativa
+    public int cantidadTilesDebuff = 3;  // cuántos tiles de -iniciativa
+    public int efectoBuff = 10; // cuánta iniciativa suben
+    public int efectoDebuff = 10; // cuánta iniciativa bajan
+
     private Graph mGraph = new Graph();
     private GameObject[,] tiles;
     bool foundok = false;
@@ -22,8 +28,8 @@ public class GraphCreator : MonoBehaviour
 
     private static readonly Color colorPlayer = new Color(0.2f, 0.6f, 1f, 1f);
     private static readonly Color colorEnemy = new Color(1f, 0.25f, 0.25f, 1f);
-    private static readonly Color colorRangoAtaque = new Color(1f, 0.6f, 0f, 1f);    // Naranja
-    private static readonly Color colorRangoHabilidad = new Color(0.8f, 0.3f, 1f, 1f);  // Morado
+    private static readonly Color colorRangoAtaque = new Color(1f, 0.6f, 0f, 1f);
+    private static readonly Color colorRangoHabilidad = new Color(0.8f, 0.3f, 1f, 1f);
 
     void Awake()
     {
@@ -58,6 +64,44 @@ public class GraphCreator : MonoBehaviour
                 tiles[row, col] = tile;
                 tile.GetComponent<Renderer>().material.color = Color.white;
             }
+        }
+
+        GenerarTilesEspecialesAleatorios(count);
+    }
+
+    void GenerarTilesEspecialesAleatorios(int count)
+    {
+        // Recopilar todas las posiciones disponibles
+        List<Vector2Int> posicionesDisponibles = new List<Vector2Int>();
+        for (int r = 0; r < count; r++)
+            for (int c = 0; c < count; c++)
+                posicionesDisponibles.Add(new Vector2Int(r, c));
+
+        // Mezclar aleatoriamente
+        for (int i = posicionesDisponibles.Count - 1; i > 0; i--)
+        {
+            int j = Random.Range(0, i + 1);
+            var temp = posicionesDisponibles[i];
+            posicionesDisponibles[i] = posicionesDisponibles[j];
+            posicionesDisponibles[j] = temp;
+        }
+
+        int index = 0;
+
+        // Asignar buffs
+        for (int i = 0; i < cantidadTilesBuff && index < posicionesDisponibles.Count; i++, index++)
+        {
+            Vector2Int pos = posicionesDisponibles[index];
+            var tileEsp = tiles[pos.x, pos.y].AddComponent<TileEspecial>();
+            tileEsp.efectoIniciativa = efectoBuff;
+        }
+
+        // Asignar debuffs
+        for (int i = 0; i < cantidadTilesDebuff && index < posicionesDisponibles.Count; i++, index++)
+        {
+            Vector2Int pos = posicionesDisponibles[index];
+            var tileEsp = tiles[pos.x, pos.y].AddComponent<TileEspecial>();
+            tileEsp.efectoIniciativa = -efectoDebuff;
         }
     }
 
@@ -99,7 +143,13 @@ public class GraphCreator : MonoBehaviour
         if (!hayOtraUnidad &&
             gridAnterior.x >= 0 && gridAnterior.x < TileCount &&
             gridAnterior.y >= 0 && gridAnterior.y < TileCount)
-            tiles[gridAnterior.x, gridAnterior.y].GetComponent<Renderer>().material.color = Color.white;
+        {
+            var tileEsp = tiles[gridAnterior.x, gridAnterior.y].GetComponent<TileEspecial>();
+            tiles[gridAnterior.x, gridAnterior.y].GetComponent<Renderer>().material.color =
+                tileEsp != null
+                    ? (tileEsp.efectoIniciativa >= 0 ? tileEsp.colorBuff : tileEsp.colorDebuff)
+                    : Color.white;
+        }
 
         if (gridActual.x >= 0 && gridActual.x < TileCount &&
             gridActual.y >= 0 && gridActual.y < TileCount)
@@ -109,9 +159,6 @@ public class GraphCreator : MonoBehaviour
 
     // ─── Rango de acción ─────────────────────────────────────────────────────
 
-    /// <summary>
-    /// Muestra el rango de ataque (naranja) o habilidad (morado) desde la posición del jugador.
-    /// </summary>
     public void MostrarRangoAccion(Vector3 posicionJugador, float rango, bool esHabilidad = false)
     {
         ResetVisual();
@@ -125,13 +172,10 @@ public class GraphCreator : MonoBehaviour
                 Vector3 posWorld = GridToWorld(r, c);
                 float dist = Vector3.Distance(posicionJugador, posWorld);
                 tiles[r, c].GetComponent<Renderer>().material.color =
-                    dist <= rango
-                        ? colorRango
-                        : new Color(0.8f, 0.8f, 0.8f, 1f);
+                    dist <= rango ? colorRango : new Color(0.8f, 0.8f, 0.8f, 1f);
             }
         }
 
-        // Pintar unidades encima para que siempre se vean
         PintarTilesUnidades();
     }
 
@@ -227,11 +271,23 @@ public class GraphCreator : MonoBehaviour
         DesbloquearPosicionesOcupadas();
 
         for (int r = 0; r < TileCount; r++)
+        {
             for (int c = 0; c < TileCount; c++)
-                tiles[r, c].GetComponent<Renderer>().material.color =
-                    tilesEnRango.Contains((r, c))
-                        ? new Color(0.3f, 1f, 0.3f, 1f)
-                        : new Color(0.8f, 0.8f, 0.8f, 1f);
+            {
+                if (tilesEnRango.Contains((r, c)))
+                {
+                    var tileEsp = tiles[r, c].GetComponent<TileEspecial>();
+                    tiles[r, c].GetComponent<Renderer>().material.color =
+                        tileEsp != null
+                            ? (tileEsp.efectoIniciativa >= 0 ? tileEsp.colorBuff : tileEsp.colorDebuff)
+                            : new Color(0.3f, 1f, 0.3f, 1f);
+                }
+                else
+                {
+                    tiles[r, c].GetComponent<Renderer>().material.color = new Color(0.8f, 0.8f, 0.8f, 1f);
+                }
+            }
+        }
 
         tiles[origen.x, origen.y].GetComponent<Renderer>().material.color = Color.cyan;
 
@@ -262,7 +318,6 @@ public class GraphCreator : MonoBehaviour
             foundok = mGraph.UpdateStep(tiles);
 
         List<sCell> pathGrid = mGraph.GetOptimalPath();
-
         DesbloquearPosicionesOcupadas();
 
         if (pathGrid.Count < 2)
@@ -302,7 +357,6 @@ public class GraphCreator : MonoBehaviour
             found = mGraph.UpdateStep(tiles);
 
         var pathGrid = mGraph.GetOptimalPath();
-
         DesbloquearPosicionesOcupadas();
 
         if (pathGrid.Count < 2)
@@ -332,8 +386,16 @@ public class GraphCreator : MonoBehaviour
     {
         tilesEnRango.Clear();
         for (int r = 0; r < TileCount; r++)
+        {
             for (int c = 0; c < TileCount; c++)
-                tiles[r, c].GetComponent<Renderer>().material.color = Color.white;
+            {
+                var tileEsp = tiles[r, c].GetComponent<TileEspecial>();
+                tiles[r, c].GetComponent<Renderer>().material.color =
+                    tileEsp != null
+                        ? (tileEsp.efectoIniciativa >= 0 ? tileEsp.colorBuff : tileEsp.colorDebuff)
+                        : Color.white;
+            }
+        }
 
         PintarTilesUnidades();
     }
