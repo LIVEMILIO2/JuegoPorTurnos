@@ -122,7 +122,7 @@ public class ActionPanelUIWarrior : ActionPanelBase
     {
         PlayerScript player = GetPlayer();
         if (player == null || player.yaUsoAccion) return;
-        // Acelerar se aplica a uno mismo, no necesita rango
+        
         GameManager.Instance.ModificarIniciativa(player, player.iniciativa + 3);
         GameManager.Instance.ReconstruirColaActual();
         Debug.Log($"{player.playerStats} usa Acelerar: iniciativa ahora {player.iniciativa}");
@@ -133,7 +133,7 @@ public class ActionPanelUIWarrior : ActionPanelBase
     {
         PlayerScript player = GetPlayer();
         if (player == null || player.yaUsoAccion) return;
-        // Defender se aplica a uno mismo, no necesita rango
+  
         GameManager.Instance.ModificarIniciativa(player, player.iniciativa + 5);
         GameManager.Instance.ReconstruirColaActual();
         player.estaDefendiendo = true;

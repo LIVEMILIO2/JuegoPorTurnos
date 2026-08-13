@@ -17,8 +17,8 @@ public class GraphCreator : MonoBehaviour
     [Header("Tiles especiales")]
     public int cantidadTilesBuff = 3;  // cuántos tiles de +iniciativa
     public int cantidadTilesDebuff = 3;  // cuántos tiles de -iniciativa
-    public int efectoBuff = 10; // cuánta iniciativa suben
-    public int efectoDebuff = 10; // cuánta iniciativa bajan
+    public int efectoBuff = 10; 
+    public int efectoDebuff = 10;
 
     private Graph mGraph = new Graph();
     private GameObject[,] tiles;
@@ -30,7 +30,7 @@ public class GraphCreator : MonoBehaviour
     private static readonly Color colorEnemy = new Color(1f, 0.25f, 0.25f, 1f);
     private static readonly Color colorRangoAtaque = new Color(1f, 0.6f, 0f, 1f);
     private static readonly Color colorRangoHabilidad = new Color(0.8f, 0.3f, 1f, 1f);
-
+    private PlayerScript miPlayer;
     void Awake()
     {
         Instance = this;
@@ -71,13 +71,13 @@ public class GraphCreator : MonoBehaviour
 
     void GenerarTilesEspecialesAleatorios(int count)
     {
-        // Recopilar todas las posiciones disponibles
+       
         List<Vector2Int> posicionesDisponibles = new List<Vector2Int>();
         for (int r = 0; r < count; r++)
             for (int c = 0; c < count; c++)
                 posicionesDisponibles.Add(new Vector2Int(r, c));
 
-        // Mezclar aleatoriamente
+
         for (int i = posicionesDisponibles.Count - 1; i > 0; i--)
         {
             int j = Random.Range(0, i + 1);
@@ -88,24 +88,33 @@ public class GraphCreator : MonoBehaviour
 
         int index = 0;
 
-        // Asignar buffs
+        //  buffs
         for (int i = 0; i < cantidadTilesBuff && index < posicionesDisponibles.Count; i++, index++)
         {
+            PlayerScript player = GetPlayer();
             Vector2Int pos = posicionesDisponibles[index];
             var tileEsp = tiles[pos.x, pos.y].AddComponent<TileEspecial>();
             tileEsp.efectoIniciativa = efectoBuff;
+            GameManager.Instance.ModificarIniciativa(player, player.iniciativa + 3);
         }
 
-        // Asignar debuffs
+        //  debuffs
         for (int i = 0; i < cantidadTilesDebuff && index < posicionesDisponibles.Count; i++, index++)
         {
+            PlayerScript player = GetPlayer();
             Vector2Int pos = posicionesDisponibles[index];
             var tileEsp = tiles[pos.x, pos.y].AddComponent<TileEspecial>();
             tileEsp.efectoIniciativa = -efectoDebuff;
+            GameManager.Instance.ModificarIniciativa(player, player.iniciativa - 3);
         }
     }
+    PlayerScript GetPlayer()
+    {
+        PlayerScript fromManager = GameManager.Instance.JugadorActual();
+        return fromManager != null ? fromManager : miPlayer;
+    }
 
-    // ─── Tiles de unidades ───────────────────────────────────────────────────
+
 
     public void PintarTilesUnidades()
     {
