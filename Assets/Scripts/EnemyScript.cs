@@ -72,7 +72,7 @@ public class EnemyScript : MonoBehaviour
 
     void Mover()
     {
-        Vector3 posAnterior = transform.position; // guardar antes de mover
+        Vector3 posAnterior = transform.position;
 
         Vector3 target = path[index];
         Vector3 direccion = (target - transform.position).normalized;
@@ -83,8 +83,6 @@ public class EnemyScript : MonoBehaviour
         }
 
         transform.position = Vector3.MoveTowards(transform.position, target, speed * Time.deltaTime);
-
-        // Actualizar tile en tiempo real
         GraphCreator.Instance?.ActualizarTileUnidad(posAnterior, transform.position, false);
 
         if (Vector3.Distance(transform.position, target) < 0.05f)
@@ -105,7 +103,11 @@ public class EnemyScript : MonoBehaviour
         if (objetivoActual == null) return;
         float distancia = Vector3.Distance(transform.position, objetivoActual.transform.position);
         if (distancia <= enemyAtackRange)
+        {
+            // VFX en la posición del objetivo
+            VFXManager.Instance?.ReproducirAtaque(objetivoActual.transform.position);
             objetivoActual.RecibirDamage(damage);
+        }
     }
 
     PlayerScript ObtenerObjetivo()

@@ -113,6 +113,7 @@ public class ActionPanelUISupport : ActionPanelBase
         GameManager.Instance.ActivarSeleccionEnemigo(player.rangoAtaque, enemigo =>
         {
             GraphCreator.Instance.ResetVisual();
+            VFXManager.Instance?.ReproducirAtaque(enemigo.transform.position);
             enemigo.RecibirDamage(player.damage);
             UsarAccion(player, TutorialManager.AccionEsperada.Atacar);
         });

@@ -111,6 +111,7 @@ public class ActionPanelUIWarrior : ActionPanelBase
         GameManager.Instance.ActivarSeleccionEnemigo(player.rangoAtaque, enemigo =>
         {
             GraphCreator.Instance.ResetVisual();
+            VFXManager.Instance?.ReproducirAtaque(enemigo.transform.position);
             enemigo.RecibirDamage(player.damage);
             Debug.Log($"{player.playerStats} ataca a {enemigo.name} por {player.damage}");
             UsarAccion(player, TutorialManager.AccionEsperada.Atacar);
