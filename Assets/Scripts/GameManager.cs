@@ -51,6 +51,29 @@ public class GameManager : MonoBehaviour
             DetectarClickTarget();
     }
 
+    // ─── Tiles especiales ────────────────────────────────────────────────────
+
+    void AplicarTileEspecial(Vector3 posicion, System.Action<TileEspecial> callback)
+    {
+        Vector2Int grid = GraphCreator.Instance.WorldToGrid(posicion);
+        GameObject tileGO = GraphCreator.Instance.ObtenerTile(grid);
+        if (tileGO == null) return;
+        TileEspecial tile = tileGO.GetComponent<TileEspecial>();
+        if (tile != null) callback(tile);
+    }
+
+    public void AplicarTileEspecialPlayer(PlayerScript player)
+    {
+        if (player == null) return;
+        AplicarTileEspecial(player.transform.position, tile => tile.AplicarEfecto(player));
+    }
+
+    public void AplicarTileEspecialEnemy(EnemyScript enemy)
+    {
+        if (enemy == null) return;
+        AplicarTileEspecial(enemy.transform.position, tile => tile.AplicarEfecto(enemy));
+    }
+
     // ─── Selección de target ─────────────────────────────────────────────────
 
     public void ActivarSeleccionEnemigo(float rango, System.Action<EnemyScript> callback)
@@ -273,10 +296,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void BotonPasarTurno()
-    {
-        // Cada panel maneja su propio pasar turno
-    }
+    public void BotonPasarTurno() { }
 
     public void RemoveEnemy(EnemyScript enemy)
     {

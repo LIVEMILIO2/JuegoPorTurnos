@@ -45,12 +45,14 @@ public class EnemyScript : MonoBehaviour
     public void TomarTurno()
     {
         if (indicadorTurno != null) indicadorTurno.SetActive(true);
+
         objetivoActual = ObtenerObjetivo();
         if (objetivoActual == null)
         {
             GameManager.Instance.SiguienteTurno();
             return;
         }
+
         Vector2Int start = GraphCreator.Instance.WorldToGrid(transform.position);
         Vector2Int goal = GraphCreator.Instance.WorldToGrid(objetivoActual.transform.position);
         GraphCreator.Instance.CalcularCaminoEnemy(start, goal, this);
@@ -60,12 +62,14 @@ public class EnemyScript : MonoBehaviour
     {
         path = nuevoPath;
         index = 0;
+
         if (path.Count == 0)
         {
             IntentarAtacar();
             GameManager.Instance.SiguienteTurno();
             return;
         }
+
         moving = true;
         if (animator != null) animator.runtimeAnimatorController = walk;
     }
@@ -73,8 +77,8 @@ public class EnemyScript : MonoBehaviour
     void Mover()
     {
         Vector3 posAnterior = transform.position;
-
         Vector3 target = path[index];
+
         Vector3 direccion = (target - transform.position).normalized;
         if (direccion != Vector3.zero)
         {
@@ -89,9 +93,14 @@ public class EnemyScript : MonoBehaviour
         {
             transform.position = target;
             index++;
+
             if (index >= path.Count)
             {
                 moving = false;
+
+                // Aplicar tile especial al llegar al destino
+                GameManager.Instance.AplicarTileEspecialEnemy(this);
+
                 IntentarAtacar();
                 GameManager.Instance.SiguienteTurno();
             }
@@ -103,11 +112,7 @@ public class EnemyScript : MonoBehaviour
         if (objetivoActual == null) return;
         float distancia = Vector3.Distance(transform.position, objetivoActual.transform.position);
         if (distancia <= enemyAtackRange)
-        {
-            // VFX en la posición del objetivo
-            VFXManager.Instance?.ReproducirAtaque(objetivoActual.transform.position);
             objetivoActual.RecibirDamage(damage);
-        }
     }
 
     PlayerScript ObtenerObjetivo()

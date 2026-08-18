@@ -54,8 +54,8 @@ public class PlayerScript : MonoBehaviour
     void Mover()
     {
         Vector3 posAnterior = transform.position;
-
         Vector3 target = path[index];
+
         Vector3 direccion = (target - transform.position).normalized;
         if (direccion != Vector3.zero)
         {
@@ -64,28 +64,27 @@ public class PlayerScript : MonoBehaviour
         }
 
         transform.position = Vector3.MoveTowards(transform.position, target, speed * Time.deltaTime);
-
         GraphCreator.Instance?.ActualizarTileUnidad(posAnterior, transform.position, true);
 
         if (Vector3.Distance(transform.position, target) < 0.05f)
         {
             transform.position = target;
             index++;
+
             if (index >= path.Count)
             {
                 moviendose = false;
                 yaSeMovio = true;
+
+                // Aplicar tile especial al llegar al destino
+                GameManager.Instance.AplicarTileEspecialPlayer(this);
+
                 panelAcciones?.RefrescarBotones(this);
 
                 if (TutorialManager.Instance != null)
-                {
-                    // En tutorial: verificar si el movimiento fue válido
                     TutorialManager.Instance.VerificarMovimiento(this);
-                }
                 else if (yaUsoAccion)
-                {
                     GameManager.Instance.SiguienteTurno();
-                }
             }
         }
     }
