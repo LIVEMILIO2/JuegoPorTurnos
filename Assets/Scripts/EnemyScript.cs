@@ -31,7 +31,7 @@ public class EnemyScript : MonoBehaviour
     int index = 0;
     bool moving = false;
     PlayerScript objetivoActual;
-
+    [HideInInspector] public int efectoTileActual = 0;
     void Start()
     {
         currentHealth = Heatlh;
@@ -97,10 +97,8 @@ public class EnemyScript : MonoBehaviour
             if (index >= path.Count)
             {
                 moving = false;
-
-                // Aplicar tile especial al llegar al destino
+                GameManager.Instance.QuitarEfectoTile(this);
                 GameManager.Instance.AplicarTileEspecialEnemy(this);
-
                 IntentarAtacar();
                 GameManager.Instance.SiguienteTurno();
             }

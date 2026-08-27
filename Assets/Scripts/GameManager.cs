@@ -314,4 +314,20 @@ public class GameManager : MonoBehaviour
         if (players.Count == 0) { SceneManager.LoadScene("GameOver"); return; }
         if (playerActual == player) { playerActual = null; SiguienteTurno(); }
     }
+
+    public void QuitarEfectoTile(PlayerScript player)
+    {
+        if (player == null || player.efectoTileActual == 0) return;
+        ModificarIniciativa(player, player.iniciativa - player.efectoTileActual);
+        player.efectoTileActual = 0;
+        ReconstruirColaActual();
+    }
+
+    public void QuitarEfectoTile(EnemyScript enemy)
+    {
+        if (enemy == null || enemy.efectoTileActual == 0) return;
+        ModificarIniciativa(enemy, enemy.iniciativa - enemy.efectoTileActual);
+        enemy.efectoTileActual = 0;
+        ReconstruirColaActual();
+    }
 }

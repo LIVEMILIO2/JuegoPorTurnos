@@ -18,29 +18,25 @@ public class TileEspecial : MonoBehaviour
             rend.material.color = efectoIniciativa >= 0 ? colorBuff : colorDebuff;
     }
 
-    /// <summary>
-    /// Aplica el efecto al PlayerScript si está parado encima.
-    /// </summary>
     public void AplicarEfecto(PlayerScript player)
     {
         if (player == null) return;
+        // Revertir efecto anterior
+        GameManager.Instance.ModificarIniciativa(player, player.iniciativa - player.efectoTileActual);
+        // Aplicar nuevo efecto
+        player.efectoTileActual = efectoIniciativa;
         GameManager.Instance.ModificarIniciativa(player, player.iniciativa + efectoIniciativa);
         GameManager.Instance.ReconstruirColaActual();
-
-        string tipo = efectoIniciativa >= 0 ? "gana" : "pierde";
-        Debug.Log($"{player.name} {tipo} {Mathf.Abs(efectoIniciativa)} de iniciativa por tile especial. Iniciativa: {player.iniciativa}");
+        Debug.Log($"{player.name} tile especial: iniciativa ahora {player.iniciativa}");
     }
 
-    /// <summary>
-    /// Aplica el efecto al EnemyScript si está parado encima.
-    /// </summary>
     public void AplicarEfecto(EnemyScript enemy)
     {
         if (enemy == null) return;
+        GameManager.Instance.ModificarIniciativa(enemy, enemy.iniciativa - enemy.efectoTileActual);
+        enemy.efectoTileActual = efectoIniciativa;
         GameManager.Instance.ModificarIniciativa(enemy, enemy.iniciativa + efectoIniciativa);
         GameManager.Instance.ReconstruirColaActual();
-
-        string tipo = efectoIniciativa >= 0 ? "gana" : "pierde";
-        Debug.Log($"{enemy.name} {tipo} {Mathf.Abs(efectoIniciativa)} de iniciativa por tile especial. Iniciativa: {enemy.iniciativa}");
+        Debug.Log($"{enemy.name} tile especial: iniciativa ahora {enemy.iniciativa}");
     }
 }

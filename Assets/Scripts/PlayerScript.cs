@@ -35,6 +35,7 @@ public class PlayerScript : MonoBehaviour
     [HideInInspector] public bool yaSeMovio = false;
     [HideInInspector] public bool yaUsoAccion = false;
     [HideInInspector] public bool estaDefendiendo = false;
+    [HideInInspector] public int efectoTileActual = 0;
 
     List<Vector3> path = new List<Vector3>();
     int index = 0;
@@ -76,7 +77,9 @@ public class PlayerScript : MonoBehaviour
                 moviendose = false;
                 yaSeMovio = true;
 
-                // Aplicar tile especial al llegar al destino
+                // Quitar efecto del tile anterior
+                GameManager.Instance.QuitarEfectoTile(this);
+                // Aplicar nuevo tile si hay
                 GameManager.Instance.AplicarTileEspecialPlayer(this);
 
                 panelAcciones?.RefrescarBotones(this);
