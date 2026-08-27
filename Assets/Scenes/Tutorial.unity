@@ -673,7 +673,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -609.00006, y: 80}
+  m_AnchoredPosition: {x: -609.00006, y: 40}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &167522875
@@ -1685,6 +1685,7 @@ MonoBehaviour:
   yaSeMovio: 0
   yaUsoAccion: 0
   estaDefendiendo: 0
+  efectoTileActual: 0
 --- !u!4 &398682598 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 393678d8265e18c41973e6813df06d91, type: 3}
@@ -2367,10 +2368,10 @@ RectTransform:
   - {fileID: 167522874}
   m_Father: {fileID: 625501771}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -228.75, y: 422}
-  m_SizeDelta: {x: -475.918, y: -846.958}
+  m_AnchorMin: {x: 0.5, y: 1}
+  m_AnchorMax: {x: 0.5, y: 1}
+  m_AnchoredPosition: {x: -240.036, y: -126}
+  m_SizeDelta: {x: 1466.655, y: 173.23}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &545040163
 MonoBehaviour:
@@ -4980,6 +4981,7 @@ MonoBehaviour:
   yaSeMovio: 0
   yaUsoAccion: 0
   estaDefendiendo: 0
+  efectoTileActual: 0
 --- !u!1 &1249444528
 GameObject:
   m_ObjectHideFlags: 0
@@ -5536,6 +5538,10 @@ MonoBehaviour:
   TileCount: 16
   startX: 0
   startZ: 0
+  cantidadTilesBuff: 3
+  cantidadTilesDebuff: 3
+  efectoBuff: 10
+  efectoDebuff: 10
 --- !u!4 &1367498702
 Transform:
   m_ObjectHideFlags: 0
@@ -5794,6 +5800,7 @@ MonoBehaviour:
   animator: {fileID: 1377115998}
   walk: {fileID: 9100000, guid: b5ee1ba5469615843ad304b54022ab30, type: 2}
   rotationSpeed: 10
+  efectoTileActual: 0
 --- !u!65 &1377116001
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -6208,6 +6215,7 @@ MonoBehaviour:
   animator: {fileID: 1542084812}
   walk: {fileID: 9100000, guid: b5ee1ba5469615843ad304b54022ab30, type: 2}
   rotationSpeed: 10
+  efectoTileActual: 0
 --- !u!65 &1542084815
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -7028,6 +7036,7 @@ MonoBehaviour:
   yaSeMovio: 0
   yaUsoAccion: 0
   estaDefendiendo: 0
+  efectoTileActual: 0
 --- !u!95 &1964613981
 Animator:
   serializedVersion: 7
@@ -7212,7 +7221,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 627.7, y: 75}
+  m_AnchoredPosition: {x: 627.7, y: 18}
   m_SizeDelta: {x: 175.001, y: 56.437}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1989166433

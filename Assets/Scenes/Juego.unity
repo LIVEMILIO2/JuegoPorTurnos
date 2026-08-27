@@ -2529,7 +2529,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 741.26025, y: -35.476074}
+  m_AnchoredPosition: {x: 741.26025, y: -35.476013}
   m_SizeDelta: {x: -410.0851, y: -129.7023}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &592346579
@@ -5255,6 +5255,7 @@ MonoBehaviour:
   yaSeMovio: 0
   yaUsoAccion: 0
   estaDefendiendo: 0
+  efectoTileActual: 0
 --- !u!1 &1249444528
 GameObject:
   m_ObjectHideFlags: 0
@@ -6392,10 +6393,10 @@ RectTransform:
   - {fileID: 1251402947}
   m_Father: {fileID: 625501771}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 742.36053, y: -56.53102}
-  m_SizeDelta: {x: -417.8286, y: 388.8499}
+  m_AnchorMin: {x: 1, y: 0.5}
+  m_AnchorMax: {x: 1, y: 0.5}
+  m_AnchoredPosition: {x: -217.63947, y: -56.531067}
+  m_SizeDelta: {x: 1502.1714, y: 1568.8499}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1459725241
 MonoBehaviour:
@@ -6813,6 +6814,7 @@ MonoBehaviour:
   animator: {fileID: 1542084812}
   walk: {fileID: 9100000, guid: b5ee1ba5469615843ad304b54022ab30, type: 2}
   rotationSpeed: 10
+  efectoTileActual: 0
 --- !u!65 &1542084815
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -8014,6 +8016,7 @@ MonoBehaviour:
   yaSeMovio: 0
   yaUsoAccion: 0
   estaDefendiendo: 0
+  efectoTileActual: 0
 --- !u!95 &1964613981
 Animator:
   serializedVersion: 7
