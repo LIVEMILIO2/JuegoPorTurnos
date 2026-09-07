@@ -1560,13 +1560,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   players:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 1221803787}
+  - {fileID: 398682597}
+  - {fileID: 1496130540}
   enemies:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 1542084813}
+  - {fileID: 1377115999}
+  - {fileID: 699591359}
   nombreText: {fileID: 1156371125}
   vidaText: {fileID: 1680843579}
   movimientoText: {fileID: 508579126}
@@ -1942,7 +1942,7 @@ MonoBehaviour:
   playerMoveRange: 3
   playerStats: Warrior
   iniciativa: 11
-  portrait: {fileID: 0}
+  portrait: {fileID: 2800000, guid: 740467b6caa531a408035b5a38fd1c4a, type: 3}
   indicadorTurno: {fileID: 649681562}
   animator: {fileID: 398682599}
   walk: {fileID: 9100000, guid: a6bb6ba6f691d2646a66c3a7110c4e15, type: 2}
@@ -3616,7 +3616,7 @@ MonoBehaviour:
   enemyAtackRange: 1.5
   damage: 25
   iniciativa: 5
-  portrait: {fileID: 0}
+  portrait: {fileID: 2800000, guid: cd69c717a62ecd24f9b5352ce2cc000b, type: 3}
   indicadorTurno: {fileID: 0}
   animator: {fileID: 699591360}
   walk: {fileID: 9100000, guid: b5ee1ba5469615843ad304b54022ab30, type: 2}
@@ -5915,7 +5915,7 @@ MonoBehaviour:
   playerMoveRange: 5
   playerStats: Warrior
   iniciativa: 10
-  portrait: {fileID: 0}
+  portrait: {fileID: 2800000, guid: 327b7edfdbe9ae34c88d731794924bd1, type: 3}
   indicadorTurno: {fileID: 721231850}
   animator: {fileID: 1221803786}
   walk: {fileID: 9100000, guid: f7fd5f5e080813447a07746805248a83, type: 2}
@@ -6349,7 +6349,7 @@ MonoBehaviour:
   enemyAtackRange: 1.5
   damage: 25
   iniciativa: 5
-  portrait: {fileID: 0}
+  portrait: {fileID: 2800000, guid: cd69c717a62ecd24f9b5352ce2cc000b, type: 3}
   indicadorTurno: {fileID: 0}
   animator: {fileID: 1377115998}
   walk: {fileID: 9100000, guid: b5ee1ba5469615843ad304b54022ab30, type: 2}
@@ -6756,6 +6756,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 2571847444725162856, guid: f5505174812b1d242895e9c75b5f15d4, type: 3}
+      propertyPath: portrait
+      value: 
+      objectReference: {fileID: 2800000, guid: 7e7f63bf68a506c47bc24f1aa0480e9a, type: 3}
+    - target: {fileID: 2571847444725162856, guid: f5505174812b1d242895e9c75b5f15d4, type: 3}
       propertyPath: rangoAtaque
       value: 3
       objectReference: {fileID: 0}
@@ -6971,7 +6975,7 @@ MonoBehaviour:
   enemyAtackRange: 1.5
   damage: 25
   iniciativa: 5
-  portrait: {fileID: 0}
+  portrait: {fileID: 2800000, guid: cd69c717a62ecd24f9b5352ce2cc000b, type: 3}
   indicadorTurno: {fileID: 0}
   animator: {fileID: 1542084812}
   walk: {fileID: 9100000, guid: b5ee1ba5469615843ad304b54022ab30, type: 2}
@@ -7633,7 +7637,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a2f706792df839248b54181995740062, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VFXManager
-  prefabAtaque: {fileID: 6547965365630005983, guid: a5f2e1a561eda814091741bf454dd28c, type: 3}
+  prefabAtaque: {fileID: 8307060409358143758, guid: 8f767d0b23c8e3b4cb2ead5380b1074d, type: 3}
 --- !u!4 &1691349307
 Transform:
   m_ObjectHideFlags: 0

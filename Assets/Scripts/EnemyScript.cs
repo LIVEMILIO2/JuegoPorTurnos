@@ -15,7 +15,7 @@ public class EnemyScript : MonoBehaviour
     public int iniciativa = 5;
 
     [Header("Barra de turnos")]
-    public Sprite portrait;
+    public Texture2D portrait;
 
     [Header("Indicador de turno")]
     public GameObject indicadorTurno;
@@ -27,11 +27,13 @@ public class EnemyScript : MonoBehaviour
     [Header("Rotacion")]
     public float rotationSpeed = 10f;
 
+    [HideInInspector] public int efectoTileActual = 0;
+
     List<Vector3> path = new List<Vector3>();
     int index = 0;
     bool moving = false;
     PlayerScript objetivoActual;
-    [HideInInspector] public int efectoTileActual = 0;
+
     void Start()
     {
         currentHealth = Heatlh;

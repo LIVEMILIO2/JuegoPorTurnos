@@ -17,7 +17,7 @@ public class PlayerScript : MonoBehaviour
     public int iniciativa = 10;
 
     [Header("Barra de turnos")]
-    public Sprite portrait;
+    public Texture2D portrait;
 
     [Header("Indicador de turno")]
     public GameObject indicadorTurno;
@@ -77,9 +77,7 @@ public class PlayerScript : MonoBehaviour
                 moviendose = false;
                 yaSeMovio = true;
 
-                // Quitar efecto del tile anterior
                 GameManager.Instance.QuitarEfectoTile(this);
-                // Aplicar nuevo tile si hay
                 GameManager.Instance.AplicarTileEspecialPlayer(this);
 
                 panelAcciones?.RefrescarBotones(this);

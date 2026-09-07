@@ -179,7 +179,7 @@ public class GameManager : MonoBehaviour
         todos.Sort((a, b) => b.ini.CompareTo(a.ini));
         foreach (var t in todos)
         {
-            Sprite spr = t.esPlayer ? ((PlayerScript)t.mb).portrait : ((EnemyScript)t.mb).portrait;
+            Texture2D spr = t.esPlayer ? ((PlayerScript)t.mb).portrait : ((EnemyScript)t.mb).portrait;
             ordenActual.Add(new TurnEntry { entidad = t.mb, portrait = spr, esPlayer = t.esPlayer });
         }
         MonoBehaviour activo = (MonoBehaviour)playerActual ?? enemyActual;
@@ -314,7 +314,6 @@ public class GameManager : MonoBehaviour
         if (players.Count == 0) { SceneManager.LoadScene("GameOver"); return; }
         if (playerActual == player) { playerActual = null; SiguienteTurno(); }
     }
-
     public void QuitarEfectoTile(PlayerScript player)
     {
         if (player == null || player.efectoTileActual == 0) return;

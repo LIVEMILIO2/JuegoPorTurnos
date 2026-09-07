@@ -1084,7 +1084,7 @@ MonoBehaviour:
   enemyAtackRange: 1.5
   damage: 25
   iniciativa: 5
-  portrait: {fileID: 0}
+  portrait: {fileID: 2800000, guid: cd69c717a62ecd24f9b5352ce2cc000b, type: 3}
   indicadorTurno: {fileID: 0}
   animator: {fileID: 197205336}
   walk: {fileID: 9100000, guid: b5ee1ba5469615843ad304b54022ab30, type: 2}
@@ -1346,7 +1346,7 @@ MonoBehaviour:
   enemyAtackRange: 1.5
   damage: 25
   iniciativa: 5
-  portrait: {fileID: 0}
+  portrait: {fileID: 2800000, guid: cd69c717a62ecd24f9b5352ce2cc000b, type: 3}
   indicadorTurno: {fileID: 0}
   animator: {fileID: 248603077}
   walk: {fileID: 9100000, guid: b5ee1ba5469615843ad304b54022ab30, type: 2}
@@ -2062,7 +2062,7 @@ MonoBehaviour:
   playerMoveRange: 3
   playerStats: Warrior
   iniciativa: 8
-  portrait: {fileID: 0}
+  portrait: {fileID: 2800000, guid: 740467b6caa531a408035b5a38fd1c4a, type: 3}
   indicadorTurno: {fileID: 649681562}
   animator: {fileID: 398682596}
   walk: {fileID: 9100000, guid: a6bb6ba6f691d2646a66c3a7110c4e15, type: 2}
@@ -6661,7 +6661,7 @@ MonoBehaviour:
   playerMoveRange: 5
   playerStats: Warrior
   iniciativa: 10
-  portrait: {fileID: 0}
+  portrait: {fileID: 2800000, guid: 327b7edfdbe9ae34c88d731794924bd1, type: 3}
   indicadorTurno: {fileID: 721231850}
   animator: {fileID: 1221803786}
   walk: {fileID: 9100000, guid: f7fd5f5e080813447a07746805248a83, type: 2}

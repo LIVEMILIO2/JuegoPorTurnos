@@ -166,9 +166,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TurnSlot
   fondo: {fileID: 5996956225018760568}
-  borde: {fileID: 6077280363778751589}
+  borde: {fileID: 8769836554859626568, guid: 5c27ed44266caa04d8c8310368497e97, type: 3}
+  portrait: {fileID: 0}
   label: {fileID: 4564196335437165666}
-  colorPlayer: {r: 0.2, g: 0.5, b: 1, a: 1}
+  colorPlayer: {r: 1, g: 1, b: 1, a: 1}
   colorEnemy: {r: 0.9, g: 0.2, b: 0.2, a: 1}
   colorBorde: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
 --- !u!1 &8493204668862349889
