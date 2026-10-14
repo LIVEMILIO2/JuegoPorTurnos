@@ -10,8 +10,8 @@ public class ActionPanelUISupport : ActionPanelBase
     [Header("Botones")]
     public Button btnMover;
     public Button btnAtacar;
-    public Button btnHabilidad1; // Curar
-    public Button btnHabilidad2; // Buff
+    public Button btnHabilidad1;
+    public Button btnHabilidad2;
     public Button btnPasarTurno;
 
     [Header("Texto de estado")]
@@ -43,7 +43,7 @@ public class ActionPanelUISupport : ActionPanelBase
     {
         miPlayer = player;
         actionPanel.SetActive(true);
-        RefrescarBotones(player);
+        ActualizarBotones(player);
     }
 
     public override void OcultarPanel()
@@ -56,6 +56,12 @@ public class ActionPanelUISupport : ActionPanelBase
     {
         if (player == null) return;
         if (enTutorial) return;
+        ActualizarBotones(player);
+    }
+
+    void ActualizarBotones(PlayerScript player)
+    {
+        if (player == null) return;
 
         btnMover.interactable = !player.yaSeMovio && !player.EstaMoviendose();
         btnAtacar.interactable = !player.yaUsoAccion;
@@ -109,11 +115,8 @@ public class ActionPanelUISupport : ActionPanelBase
         PlayerScript player = GetPlayer();
         if (player == null || player.yaUsoAccion) return;
         statusText.text = "Selecciona un enemigo...";
-        GraphCreator.Instance.MostrarRangoAccion(player.transform.position, player.rangoAtaque, false);
         GameManager.Instance.ActivarSeleccionEnemigo(player.rangoAtaque, enemigo =>
         {
-            GraphCreator.Instance.ResetVisual();
-            VFXManager.Instance?.ReproducirAtaque(enemigo.transform.position);
             enemigo.RecibirDamage(player.damage);
             UsarAccion(player, TutorialManager.AccionEsperada.Atacar);
         });
@@ -122,12 +125,10 @@ public class ActionPanelUISupport : ActionPanelBase
     void OnCurar()
     {
         PlayerScript player = GetPlayer();
-        if (player == null || player.yaUsoAccion) return;
+        if (player == null || (!enTutorial && player.yaUsoAccion)) return;
         statusText.text = "Curar: selecciona un aliado...";
-        GraphCreator.Instance.MostrarRangoAccion(player.transform.position, player.rangoHabilidad, true);
         GameManager.Instance.ActivarSeleccionAliado(player.rangoHabilidad, aliado =>
         {
-            GraphCreator.Instance.ResetVisual();
             aliado.health = Mathf.Min(aliado.health + cantidadCura, aliado.healthMax);
             Debug.Log($"Support cura a {aliado.name} por {cantidadCura}. Vida: {aliado.health}");
             UsarAccion(player, TutorialManager.AccionEsperada.Habilidad1);
@@ -137,12 +138,10 @@ public class ActionPanelUISupport : ActionPanelBase
     void OnBuff()
     {
         PlayerScript player = GetPlayer();
-        if (player == null || player.yaUsoAccion) return;
+        if (player == null || (!enTutorial && player.yaUsoAccion)) return;
         statusText.text = "Buff: selecciona un aliado...";
-        GraphCreator.Instance.MostrarRangoAccion(player.transform.position, player.rangoHabilidad, true);
         GameManager.Instance.ActivarSeleccionAliado(player.rangoHabilidad, aliado =>
         {
-            GraphCreator.Instance.ResetVisual();
             GameManager.Instance.ModificarIniciativa(aliado, aliado.iniciativa + 3);
             GameManager.Instance.ReconstruirColaActual();
             Debug.Log($"Support buffea a {aliado.name}: iniciativa ahora {aliado.iniciativa}");
@@ -162,10 +161,12 @@ public class ActionPanelUISupport : ActionPanelBase
     void UsarAccion(PlayerScript player, TutorialManager.AccionEsperada accionHecha)
     {
         player.yaUsoAccion = true;
+        bool esUltimo = TutorialManager.Instance != null && TutorialManager.Instance.EsUltimoPasoDelPersonaje();
+
+        ActualizarBotones(player);
 
         if (enTutorial)
         {
-            bool esUltimo = TutorialManager.Instance.EsUltimoPasoDelPersonaje();
             TutorialManager.Instance.AccionCompletada(accionHecha);
             if (player.yaSeMovio && esUltimo)
                 GameManager.Instance.SiguienteTurno();

@@ -10,7 +10,7 @@ public class ActionPanelUIWarrior : ActionPanelBase
     [Header("Botones")]
     public Button btnMover;
     public Button btnAtacar;
-    public Button btnHabilidad1; // Acelerar
+    public Button btnHabilidad1;
     public Button btnDefender;
     public Button btnPasarTurno;
 
@@ -41,7 +41,7 @@ public class ActionPanelUIWarrior : ActionPanelBase
     {
         miPlayer = player;
         actionPanel.SetActive(true);
-        RefrescarBotones(player);
+        ActualizarBotones(player);
     }
 
     public override void OcultarPanel()
@@ -54,6 +54,13 @@ public class ActionPanelUIWarrior : ActionPanelBase
     {
         if (player == null) return;
         if (enTutorial) return;
+        ActualizarBotones(player);
+    }
+
+    // Actualiza botones siempre, con o sin tutorial
+    void ActualizarBotones(PlayerScript player)
+    {
+        if (player == null) return;
 
         btnMover.interactable = !player.yaSeMovio && !player.EstaMoviendose();
         btnAtacar.interactable = !player.yaUsoAccion;
@@ -107,11 +114,8 @@ public class ActionPanelUIWarrior : ActionPanelBase
         PlayerScript player = GetPlayer();
         if (player == null || player.yaUsoAccion) return;
         statusText.text = "Selecciona un enemigo...";
-        GraphCreator.Instance.MostrarRangoAccion(player.transform.position, player.rangoAtaque, false);
         GameManager.Instance.ActivarSeleccionEnemigo(player.rangoAtaque, enemigo =>
         {
-            GraphCreator.Instance.ResetVisual();
-            VFXManager.Instance?.ReproducirAtaque(enemigo.transform.position);
             enemigo.RecibirDamage(player.damage);
             Debug.Log($"{player.playerStats} ataca a {enemigo.name} por {player.damage}");
             UsarAccion(player, TutorialManager.AccionEsperada.Atacar);
@@ -121,8 +125,7 @@ public class ActionPanelUIWarrior : ActionPanelBase
     void OnHabilidad1()
     {
         PlayerScript player = GetPlayer();
-        if (player == null || player.yaUsoAccion) return;
-        
+        if (player == null || (!enTutorial && player.yaUsoAccion)) return;
         GameManager.Instance.ModificarIniciativa(player, player.iniciativa + 3);
         GameManager.Instance.ReconstruirColaActual();
         Debug.Log($"{player.playerStats} usa Acelerar: iniciativa ahora {player.iniciativa}");
@@ -132,8 +135,7 @@ public class ActionPanelUIWarrior : ActionPanelBase
     void OnDefender()
     {
         PlayerScript player = GetPlayer();
-        if (player == null || player.yaUsoAccion) return;
-  
+        if (player == null || (!enTutorial && player.yaUsoAccion)) return;
         GameManager.Instance.ModificarIniciativa(player, player.iniciativa + 5);
         GameManager.Instance.ReconstruirColaActual();
         player.estaDefendiendo = true;
@@ -153,10 +155,13 @@ public class ActionPanelUIWarrior : ActionPanelBase
     void UsarAccion(PlayerScript player, TutorialManager.AccionEsperada accionHecha)
     {
         player.yaUsoAccion = true;
+        bool esUltimo = TutorialManager.Instance != null && TutorialManager.Instance.EsUltimoPasoDelPersonaje();
+
+        // Siempre actualizar botones
+        ActualizarBotones(player);
 
         if (enTutorial)
         {
-            bool esUltimo = TutorialManager.Instance.EsUltimoPasoDelPersonaje();
             TutorialManager.Instance.AccionCompletada(accionHecha);
             if (player.yaSeMovio && esUltimo)
                 GameManager.Instance.SiguienteTurno();
