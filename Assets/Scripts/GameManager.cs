@@ -83,6 +83,8 @@ public class GameManager : MonoBehaviour
         callbackEnemigo = callback;
         callbackAliado = null;
 
+        GraphCreator.Instance?.MostrarRangoAccion(playerActual.transform.position, rango, false);
+
         foreach (var e in enemies)
         {
             if (e == null || e.indicadorTurno == null) continue;
@@ -97,6 +99,8 @@ public class GameManager : MonoBehaviour
         rangoSeleccion = rango;
         callbackAliado = callback;
         callbackEnemigo = null;
+
+        GraphCreator.Instance?.MostrarRangoAccion(playerActual.transform.position, rango, true);
 
         foreach (var p in players)
         {
@@ -113,6 +117,7 @@ public class GameManager : MonoBehaviour
         callbackEnemigo = null;
         callbackAliado = null;
         ApagarIndicadores();
+        GraphCreator.Instance?.ResetVisual();
         if (playerActual != null && playerActual.indicadorTurno != null)
             playerActual.indicadorTurno.SetActive(true);
     }
@@ -314,6 +319,7 @@ public class GameManager : MonoBehaviour
         if (players.Count == 0) { SceneManager.LoadScene("GameOver"); return; }
         if (playerActual == player) { playerActual = null; SiguienteTurno(); }
     }
+
     public void QuitarEfectoTile(PlayerScript player)
     {
         if (player == null || player.efectoTileActual == 0) return;
