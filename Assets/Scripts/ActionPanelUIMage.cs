@@ -109,7 +109,7 @@ public class ActionPanelUIMage : ActionPanelBase
         statusText.text = "Selecciona un enemigo...";
         GameManager.Instance.ActivarSeleccionEnemigo(player.rangoAtaque, enemigo =>
         {
-            enemigo.RecibirDamage(player.damage);
+            enemigo.RecibirDamage(player.damage, player.transform);
             UsarAccion(player, TutorialManager.AccionEsperada.Atacar);
         });
     }

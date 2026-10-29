@@ -120,9 +120,10 @@ public class PlayerScript : MonoBehaviour
     public bool EsMiTurno() => GameManager.Instance.JugadorActual() == this;
     public bool EstaMoviendose() => moviendose;
 
-    public void RecibirDamage(float cantidad)
+    public void RecibirDamage(float cantidad, Transform atacante = null)
     {
         if (estaDefendiendo) cantidad *= 0.5f;
+        VFXManager.Instance?.ReproducirAtaque(transform.position + Vector3.up * 0.5f, atacante != null ? atacante.position : (Vector3?)null);
         health -= cantidad;
         Debug.Log($"{name} recibe daño: {cantidad}. Vida restante: {health}");
         if (health <= 0) Die();

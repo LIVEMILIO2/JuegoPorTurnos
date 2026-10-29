@@ -116,7 +116,7 @@ public class ActionPanelUIWarrior : ActionPanelBase
         statusText.text = "Selecciona un enemigo...";
         GameManager.Instance.ActivarSeleccionEnemigo(player.rangoAtaque, enemigo =>
         {
-            enemigo.RecibirDamage(player.damage);
+            enemigo.RecibirDamage(player.damage, player.transform);
             Debug.Log($"{player.playerStats} ataca a {enemigo.name} por {player.damage}");
             UsarAccion(player, TutorialManager.AccionEsperada.Atacar);
         });

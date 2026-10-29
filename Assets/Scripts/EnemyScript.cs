@@ -112,7 +112,7 @@ public class EnemyScript : MonoBehaviour
         if (objetivoActual == null) return;
         float distancia = Vector3.Distance(transform.position, objetivoActual.transform.position);
         if (distancia <= enemyAtackRange)
-            objetivoActual.RecibirDamage(damage);
+            objetivoActual.RecibirDamage(damage, transform);
     }
 
     PlayerScript ObtenerObjetivo()
@@ -127,9 +127,10 @@ public class EnemyScript : MonoBehaviour
         return objetivo;
     }
 
-    public void RecibirDamage(float cantidad)
+    public void RecibirDamage(float cantidad, Transform atacante = null)
     {
         currentHealth -= cantidad;
+        VFXManager.Instance?.ReproducirAtaque(transform.position + Vector3.up * 0.5f, atacante != null ? atacante.position : (Vector3?)null);
         Debug.Log("Enemy vida: " + currentHealth);
         if (currentHealth <= 0) Die();
     }

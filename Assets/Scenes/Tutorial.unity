@@ -986,7 +986,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Attack
+  m_text: Atacar
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f8ea077250732924d9bd9e992f40f1b1, type: 2}
   m_sharedMaterial: {fileID: -1145749045566161008, guid: f8ea077250732924d9bd9e992f40f1b1, type: 2}
@@ -1158,7 +1158,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Move
+  m_text: Mover
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f8ea077250732924d9bd9e992f40f1b1, type: 2}
   m_sharedMaterial: {fileID: -1145749045566161008, guid: f8ea077250732924d9bd9e992f40f1b1, type: 2}
@@ -4254,7 +4254,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Move
+  m_text: Mover
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f8ea077250732924d9bd9e992f40f1b1, type: 2}
   m_sharedMaterial: {fileID: -1145749045566161008, guid: f8ea077250732924d9bd9e992f40f1b1, type: 2}
@@ -4408,7 +4408,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Attack
+  m_text: Atacar
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f8ea077250732924d9bd9e992f40f1b1, type: 2}
   m_sharedMaterial: {fileID: -1145749045566161008, guid: f8ea077250732924d9bd9e992f40f1b1, type: 2}
@@ -6545,7 +6545,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Attack
+  m_text: Atacar
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f8ea077250732924d9bd9e992f40f1b1, type: 2}
   m_sharedMaterial: {fileID: -1145749045566161008, guid: f8ea077250732924d9bd9e992f40f1b1, type: 2}
@@ -6682,7 +6682,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Move
+  m_text: Mover
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f8ea077250732924d9bd9e992f40f1b1, type: 2}
   m_sharedMaterial: {fileID: -1145749045566161008, guid: f8ea077250732924d9bd9e992f40f1b1, type: 2}
