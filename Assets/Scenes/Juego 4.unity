@@ -2015,7 +2015,7 @@ MonoBehaviour:
   rangoAtaque: 4
   rangoHabilidad: 2
   playerMoveRange: 3
-  playerStats: Warrior
+  playerStats: Mago
   iniciativa: 11
   portrait: {fileID: 2800000, guid: 740467b6caa531a408035b5a38fd1c4a, type: 3}
   indicadorTurno: {fileID: 649681562}
@@ -5989,7 +5989,7 @@ MonoBehaviour:
   rangoAtaque: 1.5
   rangoHabilidad: 2
   playerMoveRange: 5
-  playerStats: Warrior
+  playerStats: Guerrero
   iniciativa: 10
   portrait: {fileID: 2800000, guid: 327b7edfdbe9ae34c88d731794924bd1, type: 3}
   indicadorTurno: {fileID: 721231850}
@@ -6835,6 +6835,10 @@ PrefabInstance:
       propertyPath: portrait
       value: 
       objectReference: {fileID: 2800000, guid: 7e7f63bf68a506c47bc24f1aa0480e9a, type: 3}
+    - target: {fileID: 2571847444725162856, guid: f5505174812b1d242895e9c75b5f15d4, type: 3}
+      propertyPath: playerStats
+      value: Clarigo
+      objectReference: {fileID: 0}
     - target: {fileID: 2571847444725162856, guid: f5505174812b1d242895e9c75b5f15d4, type: 3}
       propertyPath: rangoAtaque
       value: 3

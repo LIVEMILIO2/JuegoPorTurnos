@@ -5289,7 +5289,7 @@ MonoBehaviour:
   rangoAtaque: 1.5
   rangoHabilidad: 2
   playerMoveRange: 5
-  playerStats: Warrior
+  playerStats: Guerrero
   iniciativa: 10
   portrait: {fileID: 2800000, guid: 327b7edfdbe9ae34c88d731794924bd1, type: 3}
   indicadorTurno: {fileID: 721231850}
@@ -7940,7 +7940,7 @@ MonoBehaviour:
   rangoAtaque: 1.5
   rangoHabilidad: 2
   playerMoveRange: 3
-  playerStats: Warrior
+  playerStats: Guerrero
   iniciativa: 10
   portrait: {fileID: 0}
   indicadorTurno: {fileID: 688075464}
