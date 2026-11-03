@@ -131,6 +131,7 @@ public class EnemyScript : MonoBehaviour
     {
         currentHealth -= cantidad;
         VFXManager.Instance?.ReproducirAtaque(transform.position + Vector3.up * 0.5f, atacante != null ? atacante.position : (Vector3?)null);
+        AudioManager.Instance?.ReproducirAtaque();
         Debug.Log("Enemy vida: " + currentHealth);
         if (currentHealth <= 0) Die();
     }

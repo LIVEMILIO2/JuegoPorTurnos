@@ -124,6 +124,7 @@ public class PlayerScript : MonoBehaviour
     {
         if (estaDefendiendo) cantidad *= 0.5f;
         VFXManager.Instance?.ReproducirAtaque(transform.position + Vector3.up * 0.5f, atacante != null ? atacante.position : (Vector3?)null);
+        AudioManager.Instance?.ReproducirAtaque();
         health -= cantidad;
         Debug.Log($"{name} recibe daño: {cantidad}. Vida restante: {health}");
         if (health <= 0) Die();
