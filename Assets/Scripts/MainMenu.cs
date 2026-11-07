@@ -14,7 +14,8 @@ public class MainMenu : MonoBehaviour
     public void Intro()
     {
         SceneManager.LoadScene("Intro");
-    }    
+    }
+    public void CambiarIdioma() { Loc.Toggle(); }
     public void Salir()
     {
         Application.Quit();

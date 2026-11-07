@@ -260,6 +260,99 @@ MonoBehaviour:
     \xABRecuerden por qu\xE9 estamos haciendo esto.\xBB\n\nGuerrero: \xAB\xBFPor
     el honor?\xBB\n\nMago: \xAB\xBFPor la gloria?\xBB\n\nCl\xE9rigo: \xABPor las
     diez mil monedas de oro.\xBB\n\nGuerrero: \xAB\xA1AHORA S\xCD, A GANAR!\xBB"
+  textosEN:
+  - 'Warrior: "Look at that! The Champions'' Tournament!"
+
+
+    Mage: "The event
+    that takes place once a year?"
+
+
+    Cleric: "That''s the one. And they say this
+    year''s prize is enormous."'
+  - 'Warrior: "Ten thousand gold coins for the winning team!"
+
+
+    Mage: "Ten thousand..."
+
+
+    Cleric:
+    "We could live comfortably for years."
+
+
+    Warrior: "Or I could buy myself
+    a new sword."
+
+
+    Mage: "I knew you''d say that."'
+  - 'Warrior: "What are we waiting for? We have to sign up!"
+
+
+    Cleric: "Are you
+    sure? The tournament brings together the best warriors in the kingdom."
+
+
+    Mage:
+    "And we are..."
+
+
+    Warrior: "The ones who are going to win!"'
+  - 'Mage: "Remember, we have to work as a team."
+
+
+    Warrior: "I hit things."
+
+
+    Cleric:
+    "I keep you alive."
+
+
+    Mage: "And what do I do?"
+
+
+    Warrior: "You do magic."
+
+
+    Mage:
+    "...Excellent strategy."'
+  - 'Warrior: "We need to prepare!"
+
+
+    Cleric: "There are a lot of contestants."
+
+
+    Mage:
+    "It doesn''t matter how many there are."
+
+
+    Warrior: "Exactly!"
+
+
+    Mage:
+    "We just need to defeat them before they defeat us."
+
+
+    Cleric: "That''s not
+    reassuring."'
+  - 'Warrior: "Well... looks like we''ve arrived at the event entrance."
+
+
+    Cleric:
+    "Remember why we''re doing this."
+
+
+    Warrior: "For honor?"
+
+
+    Mage: "For
+    glory?"
+
+
+    Cleric: "For the ten thousand gold coins."
+
+
+    Warrior: "NOW
+    THAT''S THE SPIRIT! LET''S WIN THIS!"'
   nombreEscenaSiguiente: Tutorial
 --- !u!4 &78234853
 Transform:

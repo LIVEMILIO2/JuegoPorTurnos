@@ -288,16 +288,16 @@ public class GameManager : MonoBehaviour
         if (playerActual != null)
         {
             nombreText.text = playerActual.playerStats;
-            vidaText.text = "Vida: " + playerActual.health;
-            movimientoText.text = "Movimiento: " + playerActual.playerMoveRange;
-            ataqueText.text = "Ataque: " + playerActual.damage;
+            vidaText.text = Loc.T("Vida: ", "Health: ") + playerActual.health;
+            movimientoText.text = Loc.T("Movimiento: ", "Movement: ") + playerActual.playerMoveRange;
+            ataqueText.text = Loc.T("Ataque: ", "Attack: ") + playerActual.damage;
         }
         else if (enemyActual != null)
         {
-            nombreText.text = "Enemy";
-            vidaText.text = "Vida: " + enemyActual.currentHealth;
-            movimientoText.text = "Movimiento: " + enemyActual.enemyMoveRange;
-            ataqueText.text = "Ataque: " + enemyActual.damage;
+            nombreText.text = Loc.T("Enemigo", "Enemy");
+            vidaText.text = Loc.T("Vida: ", "Health: ") + enemyActual.currentHealth;
+            movimientoText.text = Loc.T("Movimiento: ", "Movement: ") + enemyActual.enemyMoveRange;
+            ataqueText.text = Loc.T("Ataque: ", "Attack: ") + enemyActual.damage;
         }
     }
 

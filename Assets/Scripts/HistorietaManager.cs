@@ -15,6 +15,8 @@ public class HistorietaManager : MonoBehaviour
     public Sprite[] paneles;
     [TextArea(2, 5)]
     public string[] textos;
+    [TextArea(2, 5)]
+    public string[] textosEN; // mismo orden que textos
 
     [Header("Escena siguiente")]
     public string nombreEscenaSiguiente = "Tutorial";
@@ -25,8 +27,12 @@ public class HistorietaManager : MonoBehaviour
     void Start()
     {
         btnSiguiente.onClick.AddListener(Siguiente);
+        Debug.Log("Idioma actual: " + Loc.Actual);
         MostrarPanel(0);
     }
+
+    void OnEnable() { Loc.OnIdiomaCambiado += Refrescar; }
+    void OnDisable() { Loc.OnIdiomaCambiado -= Refrescar; }
 
     void Update()
     {
@@ -50,19 +56,26 @@ public class HistorietaManager : MonoBehaviour
         if (panelImagen != null && paneles[indice] != null)
             panelImagen.sprite = paneles[indice];
 
-        if (panelTexto != null)
-            panelTexto.text = indice < textos.Length ? textos[indice] : "";
+        Refrescar();
+    }
 
-        var btnLabel = btnSiguiente.GetComponentInChildren<TMP_Text>();
-        if (btnLabel != null)
-            btnLabel.text = (indice == paneles.Length - 1) ? "¡Comenzar!" : "Siguiente >";
+    // Actualiza texto y botón según panel actual e idioma
+    void Refrescar()
+    {
         if (panelTexto != null)
         {
-            panelTexto.text = indice < textos.Length ? textos[indice] : "";
-            Debug.Log($"Texto panel {indice}: '{panelTexto.text}'");
+            string es = panelActual < textos.Length ? textos[panelActual] : "";
+            string en = panelActual < textosEN.Length ? textosEN[panelActual] : es;
+            panelTexto.text = Loc.T(es, en);
         }
         else
             Debug.LogWarning("panelTexto es null — no está asignado en el Inspector");
+
+        var btnLabel = btnSiguiente.GetComponentInChildren<TMP_Text>();
+        if (btnLabel != null)
+            btnLabel.text = (panelActual == paneles.Length - 1)
+                ? Loc.T("¡Comenzar!", "Start!")
+                : Loc.T("Siguiente >", "Next >");
     }
 
     public void Siguiente()

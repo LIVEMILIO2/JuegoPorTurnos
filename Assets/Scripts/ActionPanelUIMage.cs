@@ -63,8 +63,8 @@ public class ActionPanelUIMage : ActionPanelBase
         btnHabilidad1.interactable = !player.yaUsoAccion;
         btnPasarTurno.interactable = true;
 
-        string mov = player.yaSeMovio ? "<color=grey>Movimiento [OK]</color>" : "<color=white>Movimiento disponible</color>";
-        string accion = player.yaUsoAccion ? "<color=grey>Accion [OK]</color>" : "<color=white>Accion disponible</color>";
+        string mov = player.yaSeMovio ? Loc.T("<color=grey>Movimiento [OK]</color>", "<color=grey>Movement [OK]</color>") : Loc.T("<color=white>Movimiento disponible</color>", "<color=white>Movement available</color>");
+        string accion = player.yaUsoAccion ? Loc.T("<color=grey>Accion [OK]</color>", "<color=grey>Action [OK]</color>") : Loc.T("<color=white>Accion disponible</color>", "<color=white>Action available</color>");
         statusText.text = $"{mov}\n{accion}";
     }
 
@@ -95,7 +95,7 @@ public class ActionPanelUIMage : ActionPanelBase
     {
         PlayerScript player = GetPlayer();
         if (player == null) return;
-        statusText.text = "Haz click en el tablero para moverte...";
+        statusText.text = Loc.T("Haz click en el tablero para moverte...", "Click on the board to move...");
         btnMover.interactable = false;
         Vector2Int origen = GraphCreator.Instance.WorldToGrid(player.transform.position);
         GraphCreator.Instance.MostrarRangoMovimiento(origen, player.playerMoveRange);
@@ -106,7 +106,7 @@ public class ActionPanelUIMage : ActionPanelBase
     {
         PlayerScript player = GetPlayer();
         if (player == null || player.yaUsoAccion) return;
-        statusText.text = "Selecciona un enemigo...";
+        statusText.text = Loc.T("Selecciona un enemigo...", "Select an enemy...");
         GameManager.Instance.ActivarSeleccionEnemigo(player.rangoAtaque, enemigo =>
         {
             enemigo.RecibirDamage(player.damage, player.transform);
@@ -118,7 +118,7 @@ public class ActionPanelUIMage : ActionPanelBase
     {
         PlayerScript player = GetPlayer();
         if (player == null || (!enTutorial && player.yaUsoAccion)) return;
-        statusText.text = "Stun: selecciona un enemigo...";
+        statusText.text = Loc.T("Stun: selecciona un enemigo...", "Stun: select an enemy...");
         GameManager.Instance.ActivarSeleccionEnemigo(player.rangoHabilidad, enemigo =>
         {
             GameManager.Instance.ModificarIniciativa(enemigo, enemigo.iniciativa - 5);

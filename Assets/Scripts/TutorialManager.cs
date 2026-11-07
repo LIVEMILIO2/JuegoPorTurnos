@@ -74,7 +74,7 @@ public class TutorialManager : MonoBehaviour
         Paso paso = pasos[indice];
         accionEsperada = paso.accion;
 
-        textoInstruccion.text = paso.texto;
+        textoInstruccion.text = TutorialTraducciones.Obtener(paso.texto);
         btnSiguiente.gameObject.SetActive(paso.accion == AccionEsperada.Ninguna);
 
         if (paso.accion == AccionEsperada.Habilidad1 || paso.accion == AccionEsperada.Habilidad2)
@@ -158,7 +158,7 @@ public class TutorialManager : MonoBehaviour
         {
             jugador.transform.position = posicionInicialJugador;
             jugador.yaSeMovio = false;
-            textoInstruccion.text = "¡Demasiado lejos! Muévete más cerca del objetivo e intenta de nuevo.";
+            textoInstruccion.text = TutorialTraducciones.Obtener("¡Demasiado lejos! Muévete más cerca del objetivo e intenta de nuevo.");
             NotificarPaneles(pasos[pasoActual]);
         }
         else
